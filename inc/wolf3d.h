@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:17 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/13 13:27:26 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/13 21:26:56 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@
 
 typedef struct		s_walls
 {
+	double		angle_sin;
+	double		angle_cos;
+	double		angle_tg;
 	double		dot_wall_x;
 	double		dot_wall_y;
 	double		len_ver;
@@ -33,7 +36,7 @@ typedef struct		s_player
 {
  	int		x_camera;
 	int		y_camera;
-	double		pov;
+	int		pov; // double
 	double		dir;
 }					t_player;
 
