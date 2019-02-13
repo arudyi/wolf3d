@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:17 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/12 17:10:46 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/13 13:27:26 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ typedef struct		s_walls
 	double		dot_wall_y;
 	double		len_ver;
 	double		len_gor;
-	double 		len_vec;
+	double		len_vec;
 	double 		len_to_project_plane;
 }					t_walls;
 
