@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:13 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/13 23:28:42 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/14 17:23:40 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@ void ft_change_player_dest(t_elem *s_pixel, int key)
 	pov = s_pixel->player->pov;
 	if (key == 13 || key == 1) // go up go down
 	{
-		new_py = fabs(sin(pov / 180 * 3.14) * 10); // * 10
-		new_px = fabs(cos(pov / 180 * 3.14) * 10); // cos(pov / 180 * 3.14)
+		new_py = fabs(sin(pov / 180 * 3.14) * 20); // * 10
+		new_px = fabs(cos(pov / 180 * 3.14) * 20); // cos(pov / 180 * 3.14)
 		if (key == 13)
 		{
 			s_pixel->player->y_camera = (0 < pov && pov < 180) ? s_pixel->player->y_camera - new_py : s_pixel->player->y_camera + new_py;
@@ -62,8 +62,8 @@ void ft_change_player_dest(t_elem *s_pixel, int key)
 	else // go left gp right
 	{
 		new_angle = 90 - s_pixel->player->pov;
-		new_py = fabs(sin(new_angle / 180 * 3.14) * 10); /////
-		new_px = fabs(cos(new_angle / 180 * 3.14) * 10); /////
+		new_py = fabs(sin(new_angle / 180 * 3.14) * 20); /////
+		new_px = fabs(cos(new_angle / 180 * 3.14) * 20); /////
 		if (key == 2)
 		{
 			s_pixel->player->y_camera = (90 < pov && pov < 270) ? s_pixel->player->y_camera - new_py : s_pixel->player->y_camera + new_py;
@@ -132,16 +132,16 @@ void ft_change_pov(int key, t_elem *s_pixel)
 	if (key == 123)
 	{
 		if (s_pixel->player->pov == 360)
-			s_pixel->player->pov = 0;
+			s_pixel->player->pov = 2;
 		else
-			s_pixel->player->pov += 1;
+			s_pixel->player->pov += 2;
 	}
 	else if (key == 124)
 	{
 		if (s_pixel->player->pov == 0)
-			s_pixel->player->pov = 359;
+			s_pixel->player->pov = 358;
 		else
-			s_pixel->player->pov -= 1;
+			s_pixel->player->pov -= 2;
 	}
 }
 
@@ -174,7 +174,7 @@ void ft_pixel_to_image(t_elem *s_pixel, int x, int y, int color)
 	int index;
 
 	x = x << 2;
-	index = s_pixel->size_line * y + 512 + x; // index = s_pixel->size_line * y + x * 4;
+	index = s_pixel->size_line * y + x; // index = s_pixel->size_line * y + x * 4;
 	*(unsigned *)(s_pixel->begin_str + index) = color;
 }
 
@@ -256,9 +256,9 @@ void ft_check_gor(t_elem *s_pixel, double dir)
 	py = s_pixel->player->y_camera;
 	is_inside = 1;
 	ay = (0 < dir && dir < 180) ? (py >> 6 << 6) - 1 : (py >> 6 << 6) + 64;
-	ax = (dir == 90 || dir == 270) ? px : px + (py - ay) / tan(dir / 180 * 3.14) ; // tan(dir / 180 * 3.14)
+	ax = (dir == 90 || dir == 270) ? px : px + (py - ay) / s_pixel->walls->angle_tg; // tan(dir / 180 * 3.14)
 	ya = (0 < dir && dir < 180) ? -64. : 64.;
-	xa = (dir == 90 || dir == 270) ? 0. : 64. / tan(dir / 180 * 3.14); // tan(dir / 180 * 3.14)
+	xa = (dir == 90 || dir == 270) ? 0. : 64. / s_pixel->walls->angle_tg; // tan(dir / 180 * 3.14)
 	if (xa != 0 && (180 < dir && dir < 360))
 		xa = -xa;
 	while (is_inside)
@@ -267,7 +267,7 @@ void ft_check_gor(t_elem *s_pixel, double dir)
 		if (ax < 0 || ax > 1920 || ay < 0 || ay > 960)
 			break ;
 		is_inside = (ft_is_wall(s_pixel, ax, ay) == 0) ? 0 : 1;
-		ft_pixel_to_image_1(s_pixel, ax, ay, 0x00FF00);
+		//ft_pixel_to_image_1(s_pixel, ax, ay, 0x00FF00);
 		ax = (is_inside == 1) ? ax + xa : ax;
 		ay = (is_inside == 1) ? ay + ya : ay;
 	}
@@ -292,9 +292,9 @@ void ft_check_ver(t_elem *s_pixel, double dir)
 		py = (double)s_pixel->player->y_camera;
 		is_inside = 1;
 		bx = (!(90 < dir && dir < 270)) ? ((int)px >> 6 << 6) + 64 : ((int)px >> 6 << 6) - 1;
-		by = (dir == 90 || dir == 270) ? py : py + (px - bx) * tan(dir / 180 * 3.14); // tan(dir / 180 * 3.14)
+		by = (dir == 90 || dir == 270) ? py : py + (px - bx) * s_pixel->walls->angle_tg; // tan(dir / 180 * 3.14)
 		xa = (!(90 < dir && dir < 270)) ? 64 : -64;
-		ya = (dir == 90 || dir == 270) ? 0 : 64 * tan(dir / 180 * 3.14); // tan(dir / 180 * 3.14)
+		ya = (dir == 90 || dir == 270) ? 0 : 64 * s_pixel->walls->angle_tg; // tan(dir / 180 * 3.14)
 		if (ya != 0 && !(90 < dir && dir < 270))
 			ya = (0 < dir && dir < 180) ? -ya: -ya;
 		while (is_inside)
@@ -303,7 +303,7 @@ void ft_check_ver(t_elem *s_pixel, double dir)
 			if (bx < 0 || bx > 1920 || by < 0 || by > 960)
 				break ;
 			is_inside = (ft_is_wall(s_pixel, bx, by) == 0) ? 0 : 1;
-			ft_pixel_to_image_1(s_pixel, bx, by, 0xFF0000);
+			//ft_pixel_to_image_1(s_pixel, bx, by, 0xFF0000);
 			bx += (is_inside == 1) ? xa : 0;
 			by += (is_inside == 1) ? ya : 0;
 		}
@@ -319,9 +319,9 @@ int ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y)
 
 	dir = s_pixel->player->dir;
 	if (dir == 0 || dir == 360 || dir == 180)
-		len = fabs(s_pixel->player->x_camera - wall_x) / cos(dir / 180 * 3.14); // double /// cos(dir / 180 * 3.14)
+		len = fabs(s_pixel->player->x_camera - wall_x) / s_pixel->walls->angle_cos; // double /// cos(dir / 180 * 3.14)
 	else
-		len = fabs(s_pixel->player->y_camera - wall_y) / sin(dir / 180 * 3.14); //M_PI // sin(dir / 180 * 3.14)
+		len = fabs(s_pixel->player->y_camera - wall_y) / s_pixel->walls->angle_sin; //M_PI // sin(dir / 180 * 3.14)
 	len = (len < 0) ? -len : len; // len *= (len < 0) ? -1 : 1;
 	return (len);
 }
@@ -350,8 +350,20 @@ void ft_find_wall(t_elem *s_pixel, double dir)
 		printf("Error in len\n");
 		exit(1);
 	}
-	printf("len = %f\n", s_pixel->walls->len_vec);
+	//printf("len = %f\n", s_pixel->walls->len_vec);
 }
+
+/*void ft_get_texture(t_elem *s_pixel, int x, int tmp_y, int color)
+{
+	int x;
+	int y;
+
+	mlx_xpm_file_to_image(s_pixel->mlx_ptr, "graphick/red_wall.xpm", 64, 64);
+
+	
+	
+	ft_pixel_to_image(s_pixel, x , tmp_y, 0x0000FF);
+}*/
 
 void ft_draw_walls(t_elem *s_pixel, int x)
 {
@@ -364,7 +376,7 @@ void ft_draw_walls(t_elem *s_pixel, int x)
 	k = 32; ///////////
 	height = 64 / s_pixel->walls->len_vec * 1662;
 	y = 480 - (height / 2); ///// 960 / 2 ///// 480 - (height / 2);
-	printf("x = %x, height = %f\n", x, height);
+	//printf("x = %x, height = %f\n", x, height);
 	while (k)
 	{
 		i = 0;
@@ -372,11 +384,14 @@ void ft_draw_walls(t_elem *s_pixel, int x)
 		while (i <= height)
 		{
 			if (!(x > 1920 || tmp_y > 960 || x < 0 || tmp_y < 0))
+			{
+				ft_get_texture(s_pixel, x , tmp_y, 0x0000FF);
 				ft_pixel_to_image(s_pixel, x , tmp_y, 0x0000FF);
+			}
 			tmp_y++;
 			i++;
 		}
-		x++;
+		x--;
 		k--;
 	}
 }
@@ -396,21 +411,21 @@ void ft_cast_ray(t_elem *s_pixel)
 	if (dir < 0)
 		dir += 360;
 	s_pixel->player->dir = dir;
-	s_pixel->walls->angle_cos = cos(dir / 180 * 3.14);
-	s_pixel->walls->angle_sin = sin(dir / 180 * 3.14);
-	s_pixel->walls->angle_tg = tan(dir / 180 * 3.14);
 	//ft_find_wall(s_pixel, dir);
-	printf("i = %d, dir = %f\n", i, dir);
+	//printf("i = %d, dir = %f\n", i, dir);
 	//printf("x = %d, y = %d\n", s_pixel->player->x_camera, s_pixel->player->y_camera);
-	while (++i < 60) // 60
+	while (++i <= 1920) // 60 1920
 	{
-		printf("i = %d, dir = %f\n", i, dir);
+		s_pixel->walls->angle_cos = cos(dir / 180 * 3.14);
+		s_pixel->walls->angle_sin = sin(dir / 180 * 3.14);
+		s_pixel->walls->angle_tg = tan(dir / 180 * 3.14);
+		//printf("i = %d, dir = %f\n", i, dir);
 		if (dir > 360)
 			dir -= 360;
 		ft_find_wall(s_pixel, dir);
-		//ft_draw_walls(s_pixel, x);
-		dir++;// += k;
-		x -= 32;//--;
+		ft_draw_walls(s_pixel, x);
+		dir += k;
+		x--;
 	}
 }
 
@@ -423,8 +438,8 @@ void ft_draw_game(t_elem *s_pixel)
 void ft_main_draw(t_elem *s_pixel)
 {
 	ft_draw_game(s_pixel);
-	ft_pixel_to_image_1(s_pixel, s_pixel->player->x_camera, s_pixel->player->y_camera, 0xFFFFFF);
-	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->img_ptr1, 0, 0);
+	//ft_pixel_to_image_1(s_pixel, s_pixel->player->x_camera, s_pixel->player->y_camera, 0xFFFFFF);
+	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->img_ptr, 0, 0);
 	mlx_hook(s_pixel->win_ptr, 2, 5, ft_check_key, s_pixel);
 	//mlx_hook(s_pixel->win_ptr, 4, 5, mouse_press, s_pixel);
 	//mlx_hook(s_pixel->win_ptr, 5, 5, mouse_release, s_pixel);
