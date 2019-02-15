@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:17 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/13 21:26:56 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/15 17:09:25 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,24 +21,36 @@
 
 typedef struct		s_walls
 {
-	double		angle_sin;
-	double		angle_cos;
-	double		angle_tg;
-	double		dot_wall_x;
-	double		dot_wall_y;
-	double		len_ver;
-	double		len_gor;
-	double		len_vec;
-	double 		len_to_project_plane;
+	short int		if_gor_line;
+	int				offset_x;
+	int				offset_y;
+	double			angle_sin;
+	double			angle_cos;
+	double			angle_tg;
+	double			dot_wall_x;
+	double			dot_wall_y;
+	double			len_ver;
+	double			len_gor;
+	double			len_vec;
+	double 			len_to_project_plane;
 }					t_walls;
 
 typedef struct		s_player
 {
- 	int		x_camera;
-	int		y_camera;
-	int		pov; // double
-	double		dir;
+ 	int				x_camera;
+	int				y_camera;
+	int				pov;
+	double			dir;
 }					t_player;
+
+typedef struct		s_texture
+{
+	int				size_line;
+ 	int				tex_width;
+	int				tex_height;
+	void			*arr_ptr_tex[13];
+	char			*begin_str_tex[13];
+}					t_texture;
 
 typedef struct		s_elem
 {
@@ -51,8 +63,10 @@ typedef struct		s_elem
 	int				size_line;
 	t_player		*player;
 	t_walls			*walls;
+	t_texture		*texture;
 }					t_elem;
 
+int ft_get_texture(t_elem *s_pixel, int offset, double step);
 void ft_main_draw(t_elem *s_pixel);
 int ft_is_wall(t_elem *s_pixel, int x, int y);
 
