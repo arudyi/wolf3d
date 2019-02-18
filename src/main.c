@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:13 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/18 18:43:26 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/18 19:07:40 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -533,12 +533,13 @@ int ft_read_first_time(int fd)
 {
 	int i;
 	int row;
-	char buf[100];
+	char buf[10000];
 
 	row = 0;
-	while (read(fd, buf, 99))
+	i = -1;
+	while (read(fd, buf, 9999))
 	{
-		i = -1;
+		//i = -1;
 		while (buf[++i] != '\0')
 		{
 			if (!((48 <= buf[i] && buf[i] <= 57) || (97 <= buf[i] && buf[i] <= 116)) && ((buf[i] != '\n')) && ((buf[i] != '\0')))
@@ -547,7 +548,7 @@ int ft_read_first_time(int fd)
 				row++;
 		}
 	}
-	//printf("good1\n");
+	printf("good1\n");
 	return (row);
 }
 
@@ -593,7 +594,7 @@ int ft_validate(char **map, int i, t_elem *s_pixel, int row)
 	}
 	s_pixel->map->map_width = size_is_right;
 	s_pixel->map->map_height = row;
-	//printf("good2\n");
+	printf("good2\n");
 	return (1);
 }
 
@@ -612,9 +613,11 @@ int ft_read_map(int fd, t_elem *s_pixel)
 	close(fd);
 	fd = open("map", O_RDONLY);
 	map = (char **)malloc(sizeof(char *) * (row + 1));
+	printf("%d\n", row);
 	while (get_next_line(fd, &line))
 	{
 		map[++i] = ft_strdup(line);
+		//printf("%s\n", map[i]);
 		free(line);
 	}
 	close(fd);
@@ -764,6 +767,6 @@ int main(int ac, char **av)
 	if (!(s_pixel->map = (t_map *)malloc(sizeof(t_map))))
 		return (0);
 	ft_get_map(s_pixel, ac, av);
-	//ft_prepare_programm(s_pixel);
+	ft_prepare_programm(s_pixel);
 	return (0);
 }
