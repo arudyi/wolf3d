@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:13 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/16 18:06:00 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/18 11:07:09 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,17 @@ void exit_program(t_elem *s_pixel)
 	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->win_ptr);
 	//system("leaks wolf3d");
 	exit(1);
+}
+
+int exit_x(t_elem *s_pixel)
+{
+	free(s_pixel->texture);
+	free(s_pixel->player);
+	free(s_pixel->walls);
+	free(s_pixel);
+	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->win_ptr);
+	exit(1);
+	return (0);
 }
 
 void ft_change_player_dest(t_elem *s_pixel, int key)
@@ -510,6 +521,7 @@ void ft_main_draw(t_elem *s_pixel)
 	ft_draw_game(s_pixel);
 	//ft_pixel_to_image_1(s_pixel, s_pixel->player->x_camera, s_pixel->player->y_camera, 0xFFFFFF);
 	mlx_hook(s_pixel->win_ptr, 2, 5, ft_check_key, s_pixel);
+	mlx_hook(s_pixel->win_ptr, 17, 1L << 17, exit_x, s_pixel);
 	//mlx_hook(s_pixel->win_ptr, 4, 5, mouse_press, s_pixel);
 	//mlx_hook(s_pixel->win_ptr, 5, 5, mouse_release, s_pixel);
 	//mlx_hook(s_pixel->win_ptr, 6, 5, mouse_move, s_pixel);
