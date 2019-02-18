@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:13 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/18 11:07:09 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/18 18:43:26 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ int	mouse_press(int button, int x, int y, t_elem *s_pixel)
 
 void exit_program(t_elem *s_pixel)
 {
+	free(s_pixel->map);
 	free(s_pixel->texture);
 	free(s_pixel->player);
 	free(s_pixel->walls);
@@ -528,23 +529,164 @@ void ft_main_draw(t_elem *s_pixel)
 	mlx_loop(s_pixel->mlx_ptr);
 }
 
-void ft_prepare_programm(t_elem *s_pixel)
+int ft_read_first_time(int fd)
+{
+	int i;
+	int row;
+	char buf[100];
+
+	row = 0;
+	while (read(fd, buf, 99))
+	{
+		i = -1;
+		while (buf[++i] != '\0')
+		{
+			if (!((48 <= buf[i] && buf[i] <= 57) || (97 <= buf[i] && buf[i] <= 116)) && ((buf[i] != '\n')) && ((buf[i] != '\0')))
+				return (0);
+			if (buf[i] == '\n' || buf[i + 1] == '\0')
+				row++;
+		}
+	}
+	//printf("good1\n");
+	return (row);
+}
+
+int ft_validate(char **map, int i, t_elem *s_pixel, int row)
+{
+	int size_column;
+	int size_is_right;
+	int size_row;
+	int j;
+
+	size_row = 0;
+	size_is_right = 0;
+	size_column = 0;
+	while (++i < row)
+	{
+		j = -1;
+		while (map[i][++j] != '\0')
+		{
+			if ((i == 0 || i == row - 1) && map[i][j] == '0')
+				return (0);
+			if ((j == 0 || j == size_is_right - 1) && map[i][j] == '0')
+				return (0);
+			size_row++;
+			size_column++;
+			if (i == 0 && map[i][j + 1] == '\0')
+			{
+				size_is_right = size_column;
+				size_column = 0;
+				if (!(size_row >= 3))
+					return (0);
+				size_row = 0;
+			}
+			if (map[i][j + 1] == '\0' && i != 0)
+			{
+				if (!(size_row >= 3))
+					return (0);
+				if (size_column != size_is_right)
+					return (0);
+				size_column = 0;
+				size_row = 0;
+			}
+		}
+	}
+	s_pixel->map->map_width = size_is_right;
+	s_pixel->map->map_height = row;
+	//printf("good2\n");
+	return (1);
+}
+
+int ft_read_map(int fd, t_elem *s_pixel)
+{
+	int		row;
+	char	**map;
+	char	*line;
+	int		i;
+	int		j;
+	int 	k;
+
+	i = -1;
+	if ((row = ft_read_first_time(fd)) < 2)
+		return (0);
+	close(fd);
+	fd = open("map", O_RDONLY);
+	map = (char **)malloc(sizeof(char *) * (row + 1));
+	while (get_next_line(fd, &line))
+	{
+		map[++i] = ft_strdup(line);
+		free(line);
+	}
+	close(fd);
+	if (ft_validate(map, -1, s_pixel, row) == 0)
+		return (0);
+	map[row] = NULL;
+	s_pixel->map->map_game = (char **)malloc(sizeof(char *) * (row + 1));
+	i = -1;
+	while (map[++i] != NULL)
+	{
+		s_pixel->map->map_game[i] = ft_strdup(map[i]);
+		free(map[i]);
+	}
+	s_pixel->map->map_game[row] = NULL;
+
+	i = -1;
+	s_pixel->map->map_game_int = (int **)malloc(sizeof(int *) * s_pixel->map->map_width);
+	while (s_pixel->map->map_game[++i] != NULL)
+	{
+		j = -1;
+		k = -1;
+		s_pixel->map->map_game_int[i] = (int *)malloc(sizeof(int) * s_pixel->map->map_height);
+		while (s_pixel->map->map_game[i][++j] != '\0')
+		{
+			s_pixel->map->map_game_int[i][++k] = s_pixel->map->map_game[i][j] - '0';
+		}
+		free(s_pixel->map->map_game[i]);
+	}
+	printf("%d\n", s_pixel->map->map_game_int[1][2]);
+	return (1);
+}
+
+void ft_get_map(t_elem *s_pixel, int ac, char **av)
+{
+	short int error;
+	int fd;
+
+	ac = 2;
+	av[1] = "map";
+	error = 0;
+	if (ac == 2)
+	{
+		if (ft_strcmp(av[1], "map") == 0)
+		{
+			error = 1;
+			if ((fd = open("map", O_RDONLY)) == -1)
+				error = 0;
+			if (ft_read_map(fd, s_pixel) == 0)
+				error = 0;
+			close(fd);
+		}
+	}
+	if (error == 0)
+	{
+		free(s_pixel->map);
+		free(s_pixel->texture);
+		free(s_pixel->player);
+		free(s_pixel->walls);
+		free(s_pixel);
+		printf("error in ac, name or file is invalid\n");
+		exit(1);
+	}
+	
+}
+
+void ft_load_texture(t_elem *s_pixel)
 {
 	int bits_per_pixel;
 	int endian;
 
 	s_pixel->texture->tex_width = 64;
 	s_pixel->texture->tex_height = 64;
-	s_pixel->mlx_ptr = mlx_init();
-	s_pixel->win_ptr = mlx_new_window(s_pixel->mlx_ptr, 1920, 960, "wolf3d");
-	s_pixel->img_ptr = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
-	s_pixel->img_ptr1 = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
-	s_pixel->begin_str = mlx_get_data_addr(s_pixel->img_ptr, &bits_per_pixel, &s_pixel->size_line, &endian);
-	s_pixel->begin_str1 = mlx_get_data_addr(s_pixel->img_ptr1, &bits_per_pixel, &s_pixel->size_line, &endian);
-	s_pixel->player->x_camera = 855;
-	s_pixel->player->y_camera = 500;
-	s_pixel->player->pov = 90;
-	s_pixel->walls->len_to_project_plane = 1662;
 	s_pixel->texture->arr_ptr_tex[0] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blue_wall.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	s_pixel->texture->arr_ptr_tex[1] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/brown_wall.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	s_pixel->texture->arr_ptr_tex[2] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/red_wall.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
@@ -581,16 +723,33 @@ void ft_prepare_programm(t_elem *s_pixel)
 	s_pixel->texture->begin_str_tex[15] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[15], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[16] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[16], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[17] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[17], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
+}
 
+void ft_prepare_programm(t_elem *s_pixel)
+{
+	int bits_per_pixel;
+	int endian;
+
+	s_pixel->mlx_ptr = mlx_init();
+	s_pixel->win_ptr = mlx_new_window(s_pixel->mlx_ptr, 1920, 960, "wolf3d");
+	s_pixel->img_ptr = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
+	s_pixel->img_ptr1 = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
+	s_pixel->begin_str = mlx_get_data_addr(s_pixel->img_ptr, &bits_per_pixel, &s_pixel->size_line, &endian);
+	s_pixel->begin_str1 = mlx_get_data_addr(s_pixel->img_ptr1, &bits_per_pixel, &s_pixel->size_line, &endian);
+	s_pixel->player->x_camera = 855;
+	s_pixel->player->y_camera = 500;
+	s_pixel->player->pov = 90;
+	s_pixel->walls->len_to_project_plane = 1662;
 	s_pixel->player->level = 1;
 	s_pixel->player->health = 100;
 	s_pixel->player->ammo = 15;
 	s_pixel->player->score = 0;
 	s_pixel->player->lives = 3;
+	ft_load_texture(s_pixel);
 	ft_main_draw(s_pixel);
 }
 
-int main(void)
+int main(int ac, char **av)
 {
 	t_elem *s_pixel;
 
@@ -602,6 +761,9 @@ int main(void)
 		return (0);
 	if (!(s_pixel->texture = (t_texture *)malloc(sizeof(t_texture))))
 		return (0);
-	ft_prepare_programm(s_pixel);
+	if (!(s_pixel->map = (t_map *)malloc(sizeof(t_map))))
+		return (0);
+	ft_get_map(s_pixel, ac, av);
+	//ft_prepare_programm(s_pixel);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:17 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/16 17:14:59 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/18 16:36:16 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,14 @@ typedef struct		s_texture
 	char			*begin_str_tex[30];
 }					t_texture;
 
+typedef struct		s_map
+{
+	int				map_width;
+	int				map_height;
+	char			**map_game;
+	int				**map_game_int;
+}					t_map;
+
 typedef struct		s_elem
 {
 	void			*mlx_ptr;
@@ -70,6 +78,7 @@ typedef struct		s_elem
 	t_player		*player;
 	t_walls			*walls;
 	t_texture		*texture;
+	t_map 			*map;
 }					t_elem;
 
 void ft_draw_interface(t_elem *s_pixel);
