@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:13 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/18 19:07:40 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/19 19:17:53 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void exit_program(t_elem *s_pixel)
 
 int exit_x(t_elem *s_pixel)
 {
+	free(s_pixel->map);
 	free(s_pixel->texture);
 	free(s_pixel->player);
 	free(s_pixel->walls);
@@ -69,8 +70,8 @@ void ft_change_player_dest(t_elem *s_pixel, int key)
 			tmp_x = (90 < pov && pov < 270) ? s_pixel->player->x_camera - new_px : s_pixel->player->x_camera + new_px;
 			if (ft_is_wall(s_pixel, tmp_x, tmp_y))
 			{
-				s_pixel->player->y_camera = (tmp_y < 70 || tmp_y > 890) ? s_pixel->player->y_camera : tmp_y;
-				s_pixel->player->x_camera = (tmp_x < 70 || tmp_x > 1850) ? s_pixel->player->x_camera : tmp_x;
+				s_pixel->player->y_camera = (tmp_y < 70 || tmp_y > s_pixel->map->map_height - 100) ? s_pixel->player->y_camera : tmp_y; // 890
+				s_pixel->player->x_camera = (tmp_x < 70 || tmp_x > s_pixel->map->map_width - 100) ? s_pixel->player->x_camera : tmp_x; // 1850
 			}
 		}
 		else
@@ -79,8 +80,8 @@ void ft_change_player_dest(t_elem *s_pixel, int key)
 			tmp_x = (90 < pov && pov < 270) ? s_pixel->player->x_camera + new_px : s_pixel->player->x_camera - new_px;
 			if (ft_is_wall(s_pixel, tmp_x, tmp_y))
 			{
-				s_pixel->player->y_camera = (tmp_y < 70 || tmp_y > 890) ? s_pixel->player->y_camera : tmp_y;
-				s_pixel->player->x_camera = (tmp_x < 70 || tmp_x > 1850) ? s_pixel->player->x_camera : tmp_x;
+				s_pixel->player->y_camera = (tmp_y < 70 || tmp_y > s_pixel->map->map_height - 100) ? s_pixel->player->y_camera : tmp_y; // 890
+				s_pixel->player->x_camera = (tmp_x < 70 || tmp_x > s_pixel->map->map_width - 100) ? s_pixel->player->x_camera : tmp_x; // 1850
 			}
 		}
 	}
@@ -95,8 +96,8 @@ void ft_change_player_dest(t_elem *s_pixel, int key)
 			tmp_x = (0 < pov && pov < 180) ? s_pixel->player->x_camera + new_px : s_pixel->player->x_camera - new_px;
 			if (ft_is_wall(s_pixel, tmp_x, tmp_y))
 			{
-				s_pixel->player->y_camera = (tmp_y < 70 || tmp_y > 890) ? s_pixel->player->y_camera : tmp_y;
-				s_pixel->player->x_camera = (tmp_x < 70 || tmp_x > 1850) ? s_pixel->player->x_camera : tmp_x;
+				s_pixel->player->y_camera = (tmp_y < 70 || tmp_y > s_pixel->map->map_height - 100) ? s_pixel->player->y_camera : tmp_y;
+				s_pixel->player->x_camera = (tmp_x < 70 || tmp_x > s_pixel->map->map_width - 100) ? s_pixel->player->x_camera : tmp_x;
 			}
 		}
 		else
@@ -105,8 +106,8 @@ void ft_change_player_dest(t_elem *s_pixel, int key)
 			tmp_x = (0 < pov && pov < 180) ? s_pixel->player->x_camera - new_px : s_pixel->player->x_camera + new_px;
 			if (ft_is_wall(s_pixel, tmp_x, tmp_y))
 			{
-				s_pixel->player->y_camera = (tmp_y < 70 || tmp_y > 890) ? s_pixel->player->y_camera : tmp_y;
-				s_pixel->player->x_camera = (tmp_x < 70 || tmp_x > 1850) ? s_pixel->player->x_camera : tmp_x;
+				s_pixel->player->y_camera = (tmp_y < 70 || tmp_y > s_pixel->map->map_height - 100) ? s_pixel->player->y_camera : tmp_y;
+				s_pixel->player->x_camera = (tmp_x < 70 || tmp_x > s_pixel->map->map_width - 100) ? s_pixel->player->x_camera : tmp_x;
 			}
 		}
 	}
@@ -117,9 +118,6 @@ void ft_clean_display(t_elem *s_pixel)
 	int bits_per_pixel;
 	int endian;
 
-	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr1);
-	s_pixel->img_ptr1 = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
-	s_pixel->begin_str1 = mlx_get_data_addr(s_pixel->img_ptr1, &bits_per_pixel, &s_pixel->size_line, &endian);
 	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr);
 	s_pixel->img_ptr = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
 	s_pixel->begin_str = mlx_get_data_addr(s_pixel->img_ptr, &bits_per_pixel, &s_pixel->size_line, &endian);
@@ -151,14 +149,11 @@ void ft_clean_display(t_elem *s_pixel)
 
 void ft_refresh(t_elem *s_pixel)
 {
-	int bits_per_pixel;
-	int endian;
-	s_pixel->player->x_camera = 900;
-	s_pixel->player->y_camera = 500;
+	s_pixel->player->x_camera = s_pixel->map->begin_x_camera;
+	s_pixel->player->y_camera = s_pixel->map->begin_y_camera;
 	s_pixel->player->pov = 90;
 	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr);
 	s_pixel->img_ptr = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
-	s_pixel->begin_str = mlx_get_data_addr(s_pixel->img_ptr1, &bits_per_pixel, &s_pixel->size_line, &endian);
 }
 
 void ft_change_pov(int key, t_elem *s_pixel)
@@ -195,14 +190,6 @@ int	ft_check_key(int key, t_elem *s_pixel)
 	return (0);
 }
 
-void ft_pixel_to_image_1(t_elem *s_pixel, int x, int y, int color)
-{
-	int index;
-
-	index = s_pixel->size_line * y + (x << 2);
-	*(unsigned *)(s_pixel->begin_str1 + index) = color;
-}
-
 void ft_pixel_to_image(t_elem *s_pixel, int x, int y, int color)
 {
 	int index;
@@ -211,67 +198,22 @@ void ft_pixel_to_image(t_elem *s_pixel, int x, int y, int color)
 	*(unsigned *)(s_pixel->begin_str + index) = color;
 }
 
-void ft_draw_square(t_elem *s_pixel, int x, int y, int color)
-{
-	int tmp_x;
-	int tmp_y;
-
-	tmp_x = -1;
-	while (++tmp_x < 64)
-	{
-		tmp_y = -1;
-		while (++tmp_y < 64)
-			ft_pixel_to_image_1(s_pixel, x + tmp_x, y + tmp_y, color);
-	}
-}
-
-void ft_set_walls(t_elem *s_pixel)
-{
-	int x;
-	int y;
-	int i;
-
-	i = 0;
-	x = 0;
-	while (++i <= 30)
-	{
-		ft_draw_square(s_pixel, x, 0, 0x0000FF);
-		ft_draw_square(s_pixel, x, 896, 0x0000FF);
-		x += 64;
-	}
-	i = 0;
-	y = 64;
-	while (++i <= 13)
-	{
-		ft_draw_square(s_pixel, 0, y, 0x0000FF);
-		ft_draw_square(s_pixel, 1856, y, 0x0000FF);
-		y += 64;
-	}
-	i = 0;
-	y = 320;
-	while (++i <= 5)
-	{
-		ft_draw_square(s_pixel, 1472, y, 0x0000FF);
-		y += 64;
-	}
-
-	i = 0;
-	y = 320;
-	while (++i <= 5)
-	{
-		ft_draw_square(s_pixel, 1280, y, 0x0000FF);
-		y += 64;
-	}
-}
-
 int ft_is_wall(t_elem *s_pixel, int x, int y)
 {
-	int index;
-
-	index = s_pixel->size_line * y + (x << 2);//x = x << 2;
-	if (*(unsigned *)(s_pixel->begin_str1 + index) == 0x0000FF || *(unsigned *)(s_pixel->begin_str1 + index) == 0xFF0000 || *(unsigned *)(s_pixel->begin_str1 + index) == 0x00FF00 || *(unsigned *)(s_pixel->begin_str1 + index) == 0xFFFFFF)
+	if (s_pixel->map->map_game_int[y >> 6][x >> 6] != 0)
+	{
+		//s_pixel->texture->texture_now = s_pixel->map->map_game_int[y >> 6][x >> 6];
 		return (0);
+	}
 	return (1);
+}
+
+void ft_which_texture(t_elem *s_pixel, int x, int y)
+{
+	if (s_pixel->map->map_game_int[y >> 6][x >> 6] != 0)
+	{
+		s_pixel->texture->texture_now = s_pixel->map->map_game_int[y >> 6][x >> 6];
+	}
 }
 
 void ft_check_gor(t_elem *s_pixel, double dir)
@@ -296,7 +238,7 @@ void ft_check_gor(t_elem *s_pixel, double dir)
 	while (is_inside)
 	{
 		//printf("ax = %f, ay = %f\n", ax, ay);
-		if (ax < 0 || ax > 1920 || ay < 0 || ay > 960)
+		if (ax < 0 || ax > s_pixel->map->map_width || ay < 0 || ay > s_pixel->map->map_height) // x = 1920 y = 960
 			break ;
 		is_inside = (ft_is_wall(s_pixel, ax, ay) == 0) ? 0 : 1;
 		//ft_pixel_to_image_1(s_pixel, ax, ay, 0x00FF00);
@@ -333,7 +275,7 @@ void ft_check_ver(t_elem *s_pixel, double dir)
 		while (is_inside)
 		{
 			//printf("bx = %f, by = %f\n", bx, by);
-			if (bx < 0 || bx > 1920 || by < 0 || by > 960)
+			if (bx < 0 || bx > s_pixel->map->map_width || by < 0 || by > s_pixel->map->map_height) // x = 1920 y = 960
 				break ;
 			is_inside = (ft_is_wall(s_pixel, bx, by) == 0) ? 0 : 1;
 			//ft_pixel_to_image_1(s_pixel, bx, by, 0xFF0000);
@@ -357,6 +299,7 @@ int ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y)
 	else
 		len = fabs(s_pixel->player->y_camera - wall_y) / s_pixel->walls->angle_sin;
 	len = (len < 0) ? -len : len;
+	//printf("len = %f, dir = %f\n", len, dir);
 	return (len);
 }
 
@@ -366,7 +309,9 @@ void ft_find_wall(t_elem *s_pixel, double dir)
 	double nbr1_y;
 	double nbr2_x;
 	double nbr2_y;
-	
+	int tmp_gor;
+	int tmp_ver;
+
 	ft_check_gor(s_pixel, dir);
 	nbr1_x = s_pixel->walls->dot_wall_x;
 	nbr1_y = s_pixel->walls->dot_wall_y;
@@ -375,28 +320,32 @@ void ft_find_wall(t_elem *s_pixel, double dir)
 	nbr2_y = s_pixel->walls->dot_wall_y;
 	if (nbr2_x > 0 && nbr2_y > 0 && nbr1_x > 0 && nbr1_y > 0)
 	{
-		nbr1_x = ft_get_len_vec(s_pixel, nbr1_x, nbr1_y);
-		nbr2_x = ft_get_len_vec(s_pixel, nbr2_x, nbr2_y);
-		if (nbr1_x > nbr2_x)
+		tmp_gor = ft_get_len_vec(s_pixel, nbr1_x, nbr1_y); //nbr_1x
+		tmp_ver = ft_get_len_vec(s_pixel, nbr2_x, nbr2_y); // nbr2_x
+		if (tmp_gor > tmp_ver) // nbr_1x nbr2_x
 		{
 			s_pixel->walls->if_gor_line = 0;
-			s_pixel->walls->len_vec = nbr2_x;
+			s_pixel->walls->len_vec = tmp_ver; //nbr2_x
+			ft_which_texture(s_pixel, nbr2_x, nbr2_y); //nbr2_x, nbr2_y /**/
 		}
 		else
 		{
 			s_pixel->walls->if_gor_line = 1;
-			s_pixel->walls->len_vec = nbr1_x;
+			s_pixel->walls->len_vec = tmp_gor; // nbr_1x
+			ft_which_texture(s_pixel, nbr1_x, nbr1_y);/**/
 		}
 	}
 	else if ((nbr1_x > 0 && nbr1_y > 0) && (nbr2_x < 0 && nbr2_y < 0))
 	{
 		s_pixel->walls->len_vec = ft_get_len_vec(s_pixel, nbr1_x, nbr1_y);
 		s_pixel->walls->if_gor_line = 1;
+		ft_which_texture(s_pixel, nbr1_x, nbr1_y);/**/
 	}
 	else if ((nbr1_x < 0 && nbr1_y < 0) && (nbr2_x > 0 && nbr2_y > 0))
 	{
 		s_pixel->walls->len_vec = ft_get_len_vec(s_pixel, nbr2_x, nbr2_y);
 		s_pixel->walls->if_gor_line = 0;
+		ft_which_texture(s_pixel, nbr2_x, nbr2_y); /**/
 	}
 	else
 	{
@@ -413,7 +362,7 @@ int ft_get_texture(t_elem *s_pixel, int offset, double step, double y)
 
 	y = (y / step);
 	index = ((int)y << 8) + (offset << 2);
-	color = *(unsigned *)(s_pixel->texture->begin_str_tex[0] + index);
+	color = *(unsigned *)(s_pixel->texture->begin_str_tex[s_pixel->texture->texture_now] + index);
 	return (color);
 }
 
@@ -433,7 +382,7 @@ void ft_draw_walls(t_elem *s_pixel, int x)
 		offset = s_pixel->walls->offset_y % 64;
 	i = -1;
 	height = 64 / s_pixel->walls->len_vec * 1662;
-	y = 480 - ((int)height >> 1);
+	y = 480 - ((int)height >> 1 ); // / 2
 	step = (height / 64);
 	while (tmp_y <= y)
 		ft_pixel_to_image(s_pixel, x, tmp_y++, 0x202020);
@@ -473,8 +422,8 @@ void ft_cast_ray(t_elem *s_pixel)
 		//printf("i = %d, dir = %f\n", i, dir);
 		if (dir > 360)
 			dir -= 360;
-		ft_find_wall(s_pixel, dir);
-		ft_draw_walls(s_pixel, x);
+		ft_find_wall(s_pixel, dir); // get len && get texture
+		ft_draw_walls(s_pixel, x); // draw column with texture
 		dir += k;
 		x--;
 	}
@@ -482,7 +431,6 @@ void ft_cast_ray(t_elem *s_pixel)
 
 void ft_draw_game(t_elem *s_pixel)
 {
-	ft_set_walls(s_pixel);
 	ft_cast_ray(s_pixel);
 	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->img_ptr, 0, 0);
 	ft_draw_interface(s_pixel);
@@ -520,7 +468,6 @@ void ft_draw_interface(t_elem *s_pixel)
 void ft_main_draw(t_elem *s_pixel)
 {
 	ft_draw_game(s_pixel);
-	//ft_pixel_to_image_1(s_pixel, s_pixel->player->x_camera, s_pixel->player->y_camera, 0xFFFFFF);
 	mlx_hook(s_pixel->win_ptr, 2, 5, ft_check_key, s_pixel);
 	mlx_hook(s_pixel->win_ptr, 17, 1L << 17, exit_x, s_pixel);
 	//mlx_hook(s_pixel->win_ptr, 4, 5, mouse_press, s_pixel);
@@ -531,24 +478,30 @@ void ft_main_draw(t_elem *s_pixel)
 
 int ft_read_first_time(int fd)
 {
+	int count;
 	int i;
 	int row;
-	char buf[10000];
+	char buf[100];
 
 	row = 0;
 	i = -1;
-	while (read(fd, buf, 9999))
+	while ((count = read(fd, buf, 99)))
 	{
-		//i = -1;
+		i = -1;
 		while (buf[++i] != '\0')
 		{
 			if (!((48 <= buf[i] && buf[i] <= 57) || (97 <= buf[i] && buf[i] <= 116)) && ((buf[i] != '\n')) && ((buf[i] != '\0')))
 				return (0);
-			if (buf[i] == '\n' || buf[i + 1] == '\0')
+			if (buf[i] == '\n')
+				row++;
+			if (buf[i + 1] == '\0' && count < 99)
 				row++;
 		}
+		ft_bzero(&buf, 99);
 	}
-	printf("good1\n");
+	//printf("good1\n");
+	//printf("%d\n", row);
+	//system("leaks wolf3d");
 	return (row);
 }
 
@@ -567,6 +520,13 @@ int ft_validate(char **map, int i, t_elem *s_pixel, int row)
 		j = -1;
 		while (map[i][++j] != '\0')
 		{
+			if (map[i][j] == '0')
+			{
+				s_pixel->player->x_camera = (j << 6) + 10;
+				s_pixel->player->y_camera = (i << 6) + 10;
+				s_pixel->map->begin_x_camera = (j << 6) + 10;
+				s_pixel->map->begin_y_camera = (i << 6) + 10;
+			}
 			if ((i == 0 || i == row - 1) && map[i][j] == '0')
 				return (0);
 			if ((j == 0 || j == size_is_right - 1) && map[i][j] == '0')
@@ -592,9 +552,9 @@ int ft_validate(char **map, int i, t_elem *s_pixel, int row)
 			}
 		}
 	}
-	s_pixel->map->map_width = size_is_right;
-	s_pixel->map->map_height = row;
-	printf("good2\n");
+	s_pixel->map->map_width = size_is_right << 6;
+	s_pixel->map->map_height = row << 6;
+	printf("width = %d, height = %d\n",s_pixel->map->map_width , s_pixel->map->map_height);
 	return (1);
 }
 
@@ -613,7 +573,7 @@ int ft_read_map(int fd, t_elem *s_pixel)
 	close(fd);
 	fd = open("map", O_RDONLY);
 	map = (char **)malloc(sizeof(char *) * (row + 1));
-	printf("%d\n", row);
+	//printf("%d\n", row);
 	while (get_next_line(fd, &line))
 	{
 		map[++i] = ft_strdup(line);
@@ -643,10 +603,12 @@ int ft_read_map(int fd, t_elem *s_pixel)
 		while (s_pixel->map->map_game[i][++j] != '\0')
 		{
 			s_pixel->map->map_game_int[i][++k] = s_pixel->map->map_game[i][j] - '0';
+			//printf("%d ", s_pixel->map->map_game_int[i][k]);
 		}
+		//printf("\n");
 		free(s_pixel->map->map_game[i]);
 	}
-	printf("%d\n", s_pixel->map->map_game_int[1][2]);
+	//printf("%d\n", s_pixel->map->map_game_int[1][2]);
 	return (1);
 }
 
@@ -736,11 +698,9 @@ void ft_prepare_programm(t_elem *s_pixel)
 	s_pixel->mlx_ptr = mlx_init();
 	s_pixel->win_ptr = mlx_new_window(s_pixel->mlx_ptr, 1920, 960, "wolf3d");
 	s_pixel->img_ptr = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
-	s_pixel->img_ptr1 = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
+	//s_pixel->img_ptr1 = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
 	s_pixel->begin_str = mlx_get_data_addr(s_pixel->img_ptr, &bits_per_pixel, &s_pixel->size_line, &endian);
-	s_pixel->begin_str1 = mlx_get_data_addr(s_pixel->img_ptr1, &bits_per_pixel, &s_pixel->size_line, &endian);
-	s_pixel->player->x_camera = 855;
-	s_pixel->player->y_camera = 500;
+	//s_pixel->begin_str1 = mlx_get_data_addr(s_pixel->img_ptr1, &bits_per_pixel, &s_pixel->size_line, &endian);
 	s_pixel->player->pov = 90;
 	s_pixel->walls->len_to_project_plane = 1662;
 	s_pixel->player->level = 1;
