@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:17 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/20 19:08:41 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/26 19:45:51 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,8 @@ typedef struct		s_player
 	short int 		score;
 	short int 		lives;
 	short int		if_sit;
- 	int				x_camera;
-	int				y_camera;
+ 	int				x_camera; // double
+	int				y_camera; // double
 	int				pov;
 	double			dir;
 }					t_player;
@@ -61,8 +61,8 @@ typedef struct		s_texture
 
 typedef struct		s_map
 {
-	int				begin_x_camera;
-	int				begin_y_camera;
+	int				begin_x_camera; // double
+	int				begin_y_camera; // double
 	int				map_width;
 	int				map_height;
 	char			**map_game;
@@ -80,13 +80,6 @@ typedef struct		s_key
 	short int		sit;
 }					t_key;
 
-typedef struct		s_sprite
-{
-	int				len_to_sprites;
-	short int		srite_now;
-	short int		is_sprite;
-}					t_sprite;
-
 typedef struct		s_elem
 {
 	void			*mlx_ptr;
@@ -99,7 +92,6 @@ typedef struct		s_elem
 	t_texture		*texture;
 	t_map 			*map;
 	t_key 			*key;
-	t_sprite 		*sprite;
 }					t_elem;
 
 int mouse_move(int x, int y, t_elem *s_pixel);
