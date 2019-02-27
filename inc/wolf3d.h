@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:17 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/26 19:45:51 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/27 19:30:27 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,9 @@ typedef struct		s_walls
 
 typedef struct		s_player
 {
+	short int		can_go_forward;
+	short int       x_can_go;
+	short int       y_can_go;
 	short int 		level;
 	short int 		health;
 	short int 		ammo;
@@ -109,7 +112,7 @@ int ft_is_wall(t_elem *s_pixel, int x, int y);
 void ft_which_texture(t_elem *s_pixel, int x, int y);
 void ft_check_gor(t_elem *s_pixel, double dir);
 void ft_check_ver(t_elem *s_pixel, double dir);
-int ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y);
+double ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y);
 void ft_find_wall(t_elem *s_pixel, double dir);
 int ft_get_texture(t_elem *s_pixel, int offset, double step, double y);
 void ft_draw_walls(t_elem *s_pixel, int x);
