@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:13 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/27 19:43:02 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/02/28 19:12:50 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ int mouse_move(int x, int y, t_elem *s_pixel)
 	static int pre_x = 910;
 
 	y = 1;
-	if ((pre_x > x || x <= 0))
+	if ((pre_x > x || (x <= 0 && (pre_x > x || pre_x == x))))
 		s_pixel->player->pov = (s_pixel->player->pov == 360) ? 0 : s_pixel->player->pov + 1;
 	else if ((pre_x < x || x >= 1920))
 		s_pixel->player->pov = (s_pixel->player->pov == 0) ? 360 : s_pixel->player->pov - 1;
@@ -34,86 +34,45 @@ int mouse_move(int x, int y, t_elem *s_pixel)
 void exit_program(t_elem *s_pixel)
 {
 	int i;
+	int height;
 
+	height = s_pixel->map->map_height >> 6;
 	i = -1;
-	while(++i < s_pixel->map->map_width) //s_pixel->map->row
-	{
-		free(s_pixel->map->map_game[i]);
-	}
-	//free(s_pixel->map->map_game);
+	while (++i < height)
+		free(s_pixel->map->map_game_int[i]);
+	free(s_pixel->map->map_game_int);
 	free(s_pixel->key);
 	free(s_pixel->map);
 	free(s_pixel->texture);
 	free(s_pixel->player);
 	free(s_pixel->walls);
 	free(s_pixel);
-	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->win_ptr);
-	system("leaks wolf3d");
+	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr);
+	//system("leaks wolf3d");
 	exit(1);
 }
 
 int exit_x(t_elem *s_pixel)
 {
+	int i;
+	int height;
+
+	height = s_pixel->map->map_height >> 6;
+	i = -1;
+	while (++i < height)
+		free(s_pixel->map->map_game_int[i]);
+	free(s_pixel->map->map_game_int);
 	free(s_pixel->key);
 	free(s_pixel->map);
 	free(s_pixel->texture);
 	free(s_pixel->player);
 	free(s_pixel->walls);
 	free(s_pixel);
-	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->win_ptr);
-	system("leaks wolf3d");
+	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr);
+	//system("leaks wolf3d");
 	exit(1);
 	return (0);
 }
-
-/*int ft_check_is_wall(t_elem *s_pixel, int tmp_x, int tmp_y, short int motion)
-{
-	int new_tmp_x; // double
-	int new_tmp_y; //double
-	double pov;
-	double new_angle;
-
-	pov = s_pixel->player->pov;
-	if (motion == 1 || motion == 2)
-	{
-		new_tmp_y = fabs(sin(pov / 180 * 3.14) * 20.);
-		new_tmp_x = fabs(cos(pov / 180 * 3.14) * 20.);
-		if (motion == 1)
-		{
-			tmp_y = (0 < pov && pov < 180) ? s_pixel->player->y_camera - new_tmp_y : s_pixel->player->y_camera + new_tmp_y;
-			tmp_x = (90 < pov && pov < 270) ? s_pixel->player->x_camera - new_tmp_x : s_pixel->player->x_camera + new_tmp_x;
-		}
-		else
-		{
-			tmp_y = (0 < pov && pov < 180) ? s_pixel->player->y_camera + new_tmp_y : s_pixel->player->y_camera - new_tmp_y;
-			tmp_x = (90 < pov && pov < 270) ? s_pixel->player->x_camera + new_tmp_x : s_pixel->player->x_camera - new_tmp_x;
-		}
-		if (ft_is_wall(s_pixel, tmp_x, tmp_y) == 0)
-				return (0);
-	}
-	else
-	{
-		if (motion == 3 || motion == 4)
-		{
-			new_angle = 90 - s_pixel->player->pov;
-			new_tmp_y = fabs(sin(new_angle / 180 * 3.14) * 20.);
-			new_tmp_x = fabs(cos(new_angle / 180 * 3.14) * 20.);
-			if (motion == 3)
-			{
-				tmp_y = (90 < pov && pov < 270) ? s_pixel->player->y_camera - new_tmp_y : s_pixel->player->y_camera + new_tmp_y;
-				tmp_x = (0 < pov && pov < 180) ? s_pixel->player->x_camera + new_tmp_x : s_pixel->player->x_camera - new_tmp_x;
-			}
-			else
-			{
-				tmp_y = (90 < pov && pov < 270) ? s_pixel->player->y_camera + new_tmp_y : s_pixel->player->y_camera - new_tmp_y;
-				tmp_x = (0 < pov && pov < 180) ? s_pixel->player->x_camera - new_tmp_x : s_pixel->player->x_camera + new_tmp_x;
-			}
-			if (ft_is_wall(s_pixel, tmp_x, tmp_y) == 0)
-				return (0);
-		}
-	}
-	return (1);
-}*/
 
 int ft_check_is_wall(t_elem *s_pixel, int tmp_x, int tmp_y, short int motion)
 {
@@ -203,13 +162,13 @@ void ft_change_player_dest(t_elem *s_pixel)
 	pov = s_pixel->player->pov;
 	if (s_pixel->key->go_up == 1 || s_pixel->key->go_down == 1) // go up go down
 	{
-		new_py = fabs(sin(pov / 180 * 3.14) * 15.); // 15
-		new_px = fabs(cos(pov / 180 * 3.14) * 15.); // 15
+		new_py = fabs(sin(pov / 180 * 3.14) * 15.); // pov
+		new_px = fabs(cos(pov / 180 * 3.14) * 15.); // pov
 		if (s_pixel->key->go_up == 1)
 		{
 			tmp_y = (0 < pov && pov < 180) ? s_pixel->player->y_camera - new_py : s_pixel->player->y_camera + new_py; //(0 < pov && pov < 180)
 			tmp_x = (90 < pov && pov < 270) ? s_pixel->player->x_camera - new_px : s_pixel->player->x_camera + new_px; // (90 < pov && pov < 270)
-			if (ft_is_wall(s_pixel, tmp_x, tmp_y) && ft_check_is_wall(s_pixel, tmp_x, tmp_y, 1) == 1) /////////////////////////////////////////////
+			if (ft_is_wall(s_pixel, tmp_x, tmp_y) && ft_check_is_wall(s_pixel, tmp_x, tmp_y, 1) == 1)
 			{
 				if (s_pixel->player->can_go_forward == 0 && s_pixel->player->x_can_go == 1 && s_pixel->player->y_can_go == 1)
 				{
@@ -409,8 +368,8 @@ void ft_which_texture(t_elem *s_pixel, int x, int y)
 {
 	if ((int)s_pixel->map->map_game_int[y >> 6][x >> 6] != 0)
 	{
-		//s_pixel->texture->texture_now = (int)s_pixel->map->map_game_int[y >> 6][x >> 6];
-		s_pixel->texture->texture_now = ((int)s_pixel->map->map_game_int[y >> 6][x >> 6] > 10) ? (int)s_pixel->map->map_game_int[y >> 6][x >> 6] - 87 : (int)s_pixel->map->map_game_int[y >> 6][x >> 6];
+		s_pixel->texture->texture_now = (int)s_pixel->map->map_game_int[y >> 6][x >> 6];
+		//s_pixel->texture->texture_now = ((int)s_pixel->map->map_game_int[y >> 6][x >> 6] > 10) ? (int)s_pixel->map->map_game_int[y >> 6][x >> 6] - 87 : (int)s_pixel->map->map_game_int[y >> 6][x >> 6];
 		//printf("s_pixel->texture->texture_now = %d\n", s_pixel->texture->texture_now);
 	}
 }
@@ -418,78 +377,80 @@ void ft_which_texture(t_elem *s_pixel, int x, int y)
 void ft_check_gor(t_elem *s_pixel, double dir)
 {
 	short int	is_inside;
-	double		ax;
-	double		ay;
-	int			px;
-	int			py;
-	double		xa;
-	double		ya;
+	double		ax;// double int
+	double		ay;// double int
+	int		px; // int double/////////
+	int		py; // int double////////
+	double		xa;// double int
+	double		ya;// double int
 
 	px = s_pixel->player->x_camera;
 	py = s_pixel->player->y_camera;
 	is_inside = 1;
-	ay = (0 < dir && dir < 180) ? (py >> 6 << 6) - 1 : (py >> 6 << 6) + 64; // 64
+
+	ay = (0 < dir && dir < 180) ? (py / 64 * 64) - 1.0 : (py / 64 * 64) + 64.0;
 	ax = (dir == 90 || dir == 270) ? px : px + (py - ay) / s_pixel->walls->angle_tg;
+	
 	ya = (0 < dir && dir < 180) ? -64. : 64.;
 	xa = (dir == 90 || dir == 270) ? 0. : 64. / s_pixel->walls->angle_tg;
+
 	if (xa != 0 && (180 < dir && dir < 360))
 		xa = -xa;
 	while (is_inside)
 	{
-		//printf("ax = %f, ay = %f\n", ax, ay);
-		if (ax < 0 || ax > s_pixel->map->map_width || ay < 0 || ay > s_pixel->map->map_height) // x = 1920 y = 960
+		if (ax < 0 || ax > s_pixel->map->map_width || ay < 0 || ay > s_pixel->map->map_height)
 			break ;
 		is_inside = (ft_is_wall(s_pixel, ax, ay) == 0) ? 0 : 1;
-		//ft_pixel_to_image_1(s_pixel, ax, ay, 0x00FF00);
 		ax = (is_inside == 1) ? ax + xa : ax;
 		ay = (is_inside == 1) ? ay + ya : ay;
 	}
 	s_pixel->walls->offset_x = ax;
-	s_pixel->walls->dot_wall_x = (is_inside == 0) ? ax : -404;
+	s_pixel->walls->dot_wall_x = (is_inside == 0) ? ax : -404; // int
 	s_pixel->walls->dot_wall_y = (is_inside == 0) ? ay : -404;
 }
 
 void ft_check_ver(t_elem *s_pixel, double dir)
 {
 	short int	is_inside;
-	double		bx;
-	double		by;
-	double		px;
-	double		py;
-	double		xa;
-	double		ya;
+	double		bx;// double int
+	double		by;// double int
+	int		px; // double int //////
+	int		py; // double int////////
+	double		xa;// double int
+	double		ya;// double int
 
 	is_inside = 1;
 	if (!(dir == 270 || dir == 90))
 	{
-		px = (double)s_pixel->player->x_camera;
-		py = (double)s_pixel->player->y_camera;
+		px = s_pixel->player->x_camera; // double
+		py = s_pixel->player->y_camera; // double
 		is_inside = 1;
-		bx = (!(90 < dir && dir < 270)) ? ((int)px >> 6 << 6) + 64 : ((int)px >> 6 << 6) - 1; // 64
-		by = (dir == 90 || dir == 270) ? py : py + (px - bx) * s_pixel->walls->angle_tg; // tan(dir / 180 * 3.14)
-		xa = (!(90 < dir && dir < 270)) ? 64 : -64;
-		ya = (dir == 90 || dir == 270) ? 0 : 64 * s_pixel->walls->angle_tg; // tan(dir / 180 * 3.14)
+
+		bx = (90 < dir && dir < 270) ? (px >> 6 << 6) - 1. : (px >> 6 << 6) + 64.;
+		by = (dir == 90 || dir == 270) ? py : py + (px - bx) * s_pixel->walls->angle_tg;
+
+		xa = (90 < dir && dir < 270) ? -64. : 64.;
+		ya = (dir == 90 || dir == 270) ? 0. : 64. * s_pixel->walls->angle_tg;
+	
 		if (ya != 0 && !(90 < dir && dir < 270))
-			ya = (0 < dir && dir < 180) ? -ya: -ya;
+			ya = -ya;
 		while (is_inside)
 		{
-			//printf("bx = %f, by = %f\n", bx, by);
-			if (bx < 0 || bx > s_pixel->map->map_width || by < 0 || by > s_pixel->map->map_height) // x = 1920 y = 960
+			if (bx < 0 || bx > s_pixel->map->map_width || by < 0 || by > s_pixel->map->map_height)
 				break ;
 			is_inside = (ft_is_wall(s_pixel, bx, by) == 0) ? 0 : 1;
-			//ft_pixel_to_image_1(s_pixel, bx, by, 0xFF0000);
-			bx += (is_inside == 1) ? xa : 0;
-			by += (is_inside == 1) ? ya : 0;
+			bx = (is_inside == 1) ? bx + xa : bx;
+			by = (is_inside == 1) ? by + ya : by;
 		}
-		s_pixel->walls->offset_y = by;
+		s_pixel->walls->offset_y = by; // int
 	}
 	s_pixel->walls->dot_wall_x = (is_inside == 0) ? bx : -404;
 	s_pixel->walls->dot_wall_y = (is_inside == 0) ? by : -404;
 }
 
-double ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y)
+double ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y) // double
 {
-	double len;
+	double len; // double
 	double dir;
 
 	dir = s_pixel->player->dir;
@@ -497,14 +458,13 @@ double ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y)
 		len = fabs(s_pixel->player->x_camera - wall_x) / s_pixel->walls->angle_cos;
 	else
 		len = fabs(s_pixel->player->y_camera - wall_y) / s_pixel->walls->angle_sin;
-	len = (len < 0) ? -len : len;
-	//printf("len = %f, dir = %f\n", len, dir);
+	len = (len < 0) ? -len : len; // int
 	return (len);
 }
 
 void ft_find_wall(t_elem *s_pixel, double dir)
 {
-	double nbr1_x;
+	double nbr1_x; // double
 	double nbr1_y;
 	double nbr2_x;
 	double nbr2_y;
@@ -517,42 +477,35 @@ void ft_find_wall(t_elem *s_pixel, double dir)
 	ft_check_ver(s_pixel, dir);
 	nbr2_x = s_pixel->walls->dot_wall_x;
 	nbr2_y = s_pixel->walls->dot_wall_y;
-	if (nbr2_x > 0 && nbr2_y > 0 && nbr1_x > 0 && nbr1_y > 0)
+	if (nbr2_x >= 0 && nbr2_y >= 0 && nbr1_x >= 0 && nbr1_y >= 0) // >=
 	{
-		tmp_gor = ft_get_len_vec(s_pixel, nbr1_x, nbr1_y); //nbr_1x
-		tmp_ver = ft_get_len_vec(s_pixel, nbr2_x, nbr2_y); // nbr2_x
-		if (tmp_gor > tmp_ver) // nbr_1x nbr2_x
+		tmp_gor = ft_get_len_vec(s_pixel, nbr1_x, nbr1_y);
+		tmp_ver = ft_get_len_vec(s_pixel, nbr2_x, nbr2_y);
+		if (tmp_gor >= tmp_ver) // >=
 		{
 			s_pixel->walls->if_gor_line = 0;
-			s_pixel->walls->len_vec = tmp_ver; //nbr2_x
-			ft_which_texture(s_pixel, nbr2_x, nbr2_y); //nbr2_x, nbr2_y /**/
+			s_pixel->walls->len_vec = tmp_ver;
+			ft_which_texture(s_pixel, nbr2_x, nbr2_y);
 		}
 		else
 		{
 			s_pixel->walls->if_gor_line = 1;
-			s_pixel->walls->len_vec = tmp_gor; // nbr_1x
-			ft_which_texture(s_pixel, nbr1_x, nbr1_y);/**/
+			s_pixel->walls->len_vec = tmp_gor;
+			ft_which_texture(s_pixel, nbr1_x, nbr1_y);
 		}
 	}
 	else if ((nbr1_x > 0 && nbr1_y > 0) && (nbr2_x < 0 && nbr2_y < 0))
 	{
 		s_pixel->walls->len_vec = ft_get_len_vec(s_pixel, nbr1_x, nbr1_y);
 		s_pixel->walls->if_gor_line = 1;
-		ft_which_texture(s_pixel, nbr1_x, nbr1_y);/**/
+		ft_which_texture(s_pixel, nbr1_x, nbr1_y);
 	}
 	else if ((nbr1_x < 0 && nbr1_y < 0) && (nbr2_x > 0 && nbr2_y > 0))
 	{
 		s_pixel->walls->len_vec = ft_get_len_vec(s_pixel, nbr2_x, nbr2_y);
 		s_pixel->walls->if_gor_line = 0;
-		ft_which_texture(s_pixel, nbr2_x, nbr2_y); /**/
+		ft_which_texture(s_pixel, nbr2_x, nbr2_y);
 	}
-	else
-	{
-		printf("Error in len\n");
-		exit(1);
-	}
-	//if (s_pixel->player->dir == s_pixel->player->pov)
-		//printf("len = %f\n", s_pixel->walls->len_vec);
 }
 
 int ft_get_texture(t_elem *s_pixel, int offset, double step, double y)
@@ -581,6 +534,7 @@ void ft_draw_walls(t_elem *s_pixel, int x)
 	else
 		offset = s_pixel->walls->offset_y % 64;
 	i = -1;
+	//s_pixel->walls->len_vec = s_pixel->walls->len_vec * cos(s_pixel->player->dir / 180 * 3.14);
 	height = 64 / s_pixel->walls->len_vec * 1662;
 	y = 480 - (height  / 2 ); // >> 1
 	step = (height / 64);
@@ -598,37 +552,33 @@ void ft_draw_walls(t_elem *s_pixel, int x)
 			ft_pixel_to_image(s_pixel, x, y++, 0x696969);
 }
 
-void ft_cast_ray(t_elem *s_pixel) //////////////////////////////
+void ft_cast_ray(t_elem *s_pixel)
 {
 	short int i;
 	double k;
 	double dir;
 	int x;
 
-	x = 1920; // 1920
+	x = 1920;
 	i = 0;
 	k = 60. / 1920.;
 	dir = (double)(s_pixel->player->pov - (60. / 2.));
-	//dir = (double)s_pixel->player->pov;
 	if (dir < 0)
 		dir += 360;
-	//s_pixel->player->dir = dir;
-	//ft_find_wall(s_pixel, dir);
-	//printf("i = %d, dir = %f\n", i, dir);
-	//printf("x = %d, y = %d\n", s_pixel->player->x_camera, s_pixel->player->y_camera);
-	while (++i <= 1920) // 60 1920
+	while (++i <= 1920)
 	{
 		s_pixel->player->dir = dir;
-		s_pixel->walls->angle_cos = cos(dir / 180 * 3.14);
-		s_pixel->walls->angle_sin = sin(dir / 180 * 3.14);
-		s_pixel->walls->angle_tg = tan(dir / 180 * 3.14);
-		//printf("i = %d, dir = %f\n", i, dir);
-		if (dir > 360)
-			dir -= 360;
-		ft_find_wall(s_pixel, dir); // get len && get texture
-		ft_draw_walls(s_pixel, x); // draw column with texture
+		s_pixel->walls->angle_cos = (cos(dir / 180 * 3.14)); // fabs
+		s_pixel->walls->angle_sin = (sin(dir / 180 * 3.14)); // fabs
+		s_pixel->walls->angle_tg = (tan(dir / 180 * 3.14)); // fabs
+		ft_find_wall(s_pixel, dir);
+		ft_draw_walls(s_pixel, x);
 		dir += k;
-		x--;// x++
+		if (dir == 111.)
+			dir = 111.;
+		if (dir > 360.)
+			dir -= 360.;
+		x--;
 	}
 }
 
@@ -636,7 +586,7 @@ void ft_draw_game(t_elem *s_pixel)
 {
 	ft_cast_ray(s_pixel);
 	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->img_ptr, 0, 0);
-	ft_draw_interface(s_pixel);
+	//ft_draw_interface(s_pixel);
 }
 
 void ft_draw_interface(t_elem *s_pixel)
@@ -677,6 +627,8 @@ void ft_draw_interface(t_elem *s_pixel)
 	mlx_string_put(s_pixel->mlx_ptr, s_pixel->win_ptr, 100, 870, 0xFFFFFF, str);
 	free(str);
 	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->texture->arr_ptr_tex[17], 1600, 820);
+	//system("leaks wolf3d");
+	//exit(1);
 }
 
 void ft_main_draw(t_elem *s_pixel)
@@ -786,8 +738,8 @@ int ft_validate(char **map, int i, t_elem *s_pixel, int row)
 	}
 	if (is_player == 0)
 		return (0);
-	s_pixel->map->map_width = size_is_right; ///////// !!!!!!!!!!!!!!!!!!! ////////
-	s_pixel->map->map_height = row; ////////////// !!!!!!!!!!!!!!!!!!!!!!!!!!!! ///////////////////////////// 
+	s_pixel->map->map_width = size_is_right << 6; ///////// !!!!!!!!!!!!!!!!!!! ////////
+	s_pixel->map->map_height = row << 6; ////////////// !!!!!!!!!!!!!!!!!!!!!!!!!!!! ///////////////////////////// 
 	//printf("width = %d, height = %d\n",s_pixel->map->map_width , s_pixel->map->map_height);
 	return (1);
 }
@@ -807,16 +759,21 @@ int ft_read_map(int fd, t_elem *s_pixel)
 	close(fd);
 	fd = open("map", O_RDONLY);
 	map = (char **)malloc(sizeof(char *) * (row + 1));
-	//printf("%d\n", row);
 	while (get_next_line(fd, &line))
 	{
 		map[++i] = ft_strdup(line);
-		//printf("%s\n", map[i]);
 		free(line);
 	}
 	close(fd);
 	if (ft_validate(map, -1, s_pixel, row) == 0)
+	{
+		map[row] = NULL;
+		i = -1;
+		while (map[++i] != NULL)
+			free(map[i]);
+		free(map);
 		return (0);
+	}
 	map[row] = NULL;
 	s_pixel->map->map_game = (char **)malloc(sizeof(char *) * (row + 1));
 	i = -1;
@@ -825,33 +782,31 @@ int ft_read_map(int fd, t_elem *s_pixel)
 		s_pixel->map->map_game[i] = ft_strdup(map[i]);
 		free(map[i]);
 	}
+	free(map);
 	s_pixel->map->map_game[row] = NULL;
-
 	i = -1;
-	s_pixel->map->map_game_int = (int **)malloc(sizeof(int *) * s_pixel->map->map_height); /// !!!!!!!!!!!!! //////// s_pixel->map->map_width
+	s_pixel->map->map_game_int = (int **)malloc(sizeof(int *) * (s_pixel->map->map_height >> 6)); /// !!!!!!!!!!!!! //////// s_pixel->map->map_width
 	while (s_pixel->map->map_game[++i] != NULL)
 	{
 		j = -1;
 		k = -1;
-		s_pixel->map->map_game_int[i] = (int *)malloc(sizeof(int) * s_pixel->map->map_width);
+		s_pixel->map->map_game_int[i] = (int *)malloc(sizeof(int) * (s_pixel->map->map_width >> 6));
 		while (s_pixel->map->map_game[i][++j] != '\0')
 		{
 			s_pixel->map->map_game_int[i][++k] = (48 <= s_pixel->map->map_game[i][j] && s_pixel->map->map_game[i][j] <= 57) ? s_pixel->map->map_game[i][j] - '0' : s_pixel->map->map_game[i][j]  - 0;
-			//printf("%d", s_pixel->map->map_game_int[i][k]);
 		}
-		//printf("\n");
 		free(s_pixel->map->map_game[i]);
 	}
+	free(s_pixel->map->map_game);
 	i = -1;
-	while (++i < s_pixel->map->map_height)
+	/*while (++i < s_pixel->map->map_height >> 6)
 	{
 		k = -1;
-		while(++k < s_pixel->map->map_width)
+		while (++k < s_pixel->map->map_width >> 6)
 			printf("%d", s_pixel->map->map_game_int[i][k]);
 		printf("\n");
-	}
+	}*/
 	//printf("%d\n", s_pixel->map->map_game_int[1][2]);
-	exit(1); ///////////
 	return (1);
 }
 
@@ -884,6 +839,7 @@ void ft_get_map(t_elem *s_pixel, int ac, char **av)
 		free(s_pixel->walls);
 		free(s_pixel);
 		printf("error in ac, name or file is invalid\n");
+		system("leaks wolf3d");
 		exit(1);
 	}
 	
@@ -970,7 +926,7 @@ void ft_prepare_programm(t_elem *s_pixel)
 	s_pixel->win_ptr = mlx_new_window(s_pixel->mlx_ptr, 1920, 960, "wolf3d");
 	s_pixel->img_ptr = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
 	s_pixel->begin_str = mlx_get_data_addr(s_pixel->img_ptr, &bits_per_pixel, &s_pixel->size_line, &endian);
-	s_pixel->player->pov = 90; //90
+	s_pixel->player->pov = 110; //90
 	s_pixel->walls->len_to_project_plane = 1662;
 	s_pixel->player->level = 1;
 	s_pixel->player->health = 100;
@@ -984,8 +940,8 @@ void ft_prepare_programm(t_elem *s_pixel)
 	s_pixel->key->see_left = 0;
 	s_pixel->key->see_right = 0;
 	s_pixel->key->sit = 0;
-	//s_pixel->player->x_camera = 600; ///////////////////////////////////////////////////////////////////////////////////
-	//s_pixel->player->y_camera = 1200; /////////////////////////////////////////////////////////////////////////////////
+	s_pixel->player->x_camera = 590; ///////////////////////////////////////////////////////////////////////////////////
+	s_pixel->player->y_camera = 1350; /////////////////////////////////////////////////////////////////////////////////
 	ft_load_texture(s_pixel);
 	ft_main_draw(s_pixel);
 }
