@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:17 by arudyi            #+#    #+#             */
-/*   Updated: 2019/02/28 18:40:27 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/01 18:04:38 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,9 @@ typedef struct		s_elem
 	void			*win_ptr;
 	void			*img_ptr;
 	char			*begin_str;
+	void *img_ptr1;
+	char *begin_str1;
+	int size_line1;
 	int				size_line;
 	t_player		*player;
 	t_walls			*walls;
