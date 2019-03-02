@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:13 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/01 18:45:43 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/02 16:46:41 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,9 @@ int mouse_move(int x, int y, t_elem *s_pixel)
 
 	y = 1;
 	if ((pre_x > x || (x <= 0 && (pre_x > x || pre_x == x))))
-		s_pixel->player->pov = (s_pixel->player->pov == 360) ? 0 : s_pixel->player->pov + 1;
+		s_pixel->player->pov = (s_pixel->player->pov == 360) ? 2 : s_pixel->player->pov + 2;
 	else if ((pre_x < x || x >= 1920))
-		s_pixel->player->pov = (s_pixel->player->pov == 0) ? 360 : s_pixel->player->pov - 1;
+		s_pixel->player->pov = (s_pixel->player->pov == 0) ? 358 : s_pixel->player->pov - 2;
 	else if (x == pre_x)
 		pre_x = x;
 	pre_x = x;
@@ -36,6 +36,7 @@ void exit_program(t_elem *s_pixel)
 	int i;
 	int height;
 
+	system("killall afplay");
 	height = s_pixel->map->map_height >> 6;
 	i = -1;
 	while (++i < height)
@@ -172,7 +173,7 @@ void ft_change_player_dest(t_elem *s_pixel)
 			{
 				if (s_pixel->player->can_go_forward == 0 && s_pixel->player->x_can_go == 1 && s_pixel->player->y_can_go == 1)
 				{
-					offset_tmp = tmp_x / 64.; // 
+					offset_tmp = tmp_x / 64.;
 					offset = 10 * (offset_tmp - (int)offset_tmp);
 					if (offset >= 5)
 					{
@@ -272,6 +273,8 @@ void ft_refresh(t_elem *s_pixel)
 	s_pixel->key->see_left = 0;	
 	s_pixel->key->see_right = 0;
 	s_pixel->key->sit = 0;
+	s_pixel->texture->mandatory_mode = 1;
+	s_pixel->texture->texture_mode = 1;
 	s_pixel->player->x_camera = s_pixel->map->begin_x_camera;
 	s_pixel->player->y_camera = s_pixel->map->begin_y_camera;
 	s_pixel->player->pov = 90;
@@ -285,9 +288,9 @@ void ft_change_pov(t_elem *s_pixel)
 {
 
 	if (s_pixel->key->see_left == 1)
-		s_pixel->player->pov = (s_pixel->player->pov == 360) ? 0 : s_pixel->player->pov + 1;
+		s_pixel->player->pov = (s_pixel->player->pov == 360) ? 2 : s_pixel->player->pov + 2;
 	if (s_pixel->key->see_right == 1)
-		s_pixel->player->pov = (s_pixel->player->pov == 0) ? 360 : s_pixel->player->pov - 1;
+		s_pixel->player->pov = (s_pixel->player->pov == 0) ? 358 : s_pixel->player->pov - 2;
 }
 
 int ft_after_key_mouse(t_elem *s_pixel)
@@ -301,6 +304,14 @@ int ft_after_key_mouse(t_elem *s_pixel)
 
 int ft_key_press(int key, t_elem *s_pixel)
 {
+	if (key == 83)
+		s_pixel->texture->mandatory_mode = 1;
+	if (key == 84)
+		s_pixel->texture->mandatory_mode = 0;
+	if (key == 86)
+		s_pixel->texture->texture_mode = 1;
+	if (key == 87)
+		s_pixel->texture->texture_mode = 0;
 	if (key == 53)
 		exit_program(s_pixel);
 	if (key == 51)
@@ -373,11 +384,11 @@ void ft_pixel_to_image1(t_elem *s_pixel, int x, int y, int color)
 
 int ft_is_wall(t_elem *s_pixel, int x, int y)
 {
-
+	if (x < 0 || y < 0 || x > s_pixel->map->map_width - 1 || y > s_pixel->map->map_height - 1)
+		return (0);
 	if (s_pixel->map->map_game_int[y >> 6][x >> 6] != 0)
 	{
-		//if (97 <= (int)s_pixel->map->map_game_int[y >> 6][x >> 6] && (int)s_pixel->map->map_game_int[y >> 6][x >> 6] <= 122)
-		//	return (1);
+	
 		return (0); //if exist wall
 	}
 	return (1); // if dont exist wall
@@ -385,12 +396,12 @@ int ft_is_wall(t_elem *s_pixel, int x, int y)
 
 void ft_which_texture(t_elem *s_pixel, int x, int y)
 {
-	if ((int)s_pixel->map->map_game_int[y >> 6][x >> 6] != 0)
-	{
+	//if ((int)s_pixel->map->map_game_int[y >> 6][x >> 6] != 0)
+	//{
 		s_pixel->texture->texture_now = (int)s_pixel->map->map_game_int[y >> 6][x >> 6];
 		//s_pixel->texture->texture_now = ((int)s_pixel->map->map_game_int[y >> 6][x >> 6] > 10) ? (int)s_pixel->map->map_game_int[y >> 6][x >> 6] - 87 : (int)s_pixel->map->map_game_int[y >> 6][x >> 6];
 		//printf("s_pixel->texture->texture_now = %d\n", s_pixel->texture->texture_now);
-	}
+	//}
 }
 
 void ft_check_gor(t_elem *s_pixel, double dir)
@@ -403,27 +414,32 @@ void ft_check_gor(t_elem *s_pixel, double dir)
 	double		xa;
 	double		ya;
 
-	px = s_pixel->player->x_camera;
-	py = s_pixel->player->y_camera;
+	px = (int)s_pixel->player->x_camera;
+	py = (int)s_pixel->player->y_camera;
 	is_inside = 1;
-
+	ft_pixel_to_image1(s_pixel, px, py, 0xFFFFFF);
 	ay = (0 <= dir && dir <= 180) ? ((int)py >> 6 << 6) - 1 : ((int)py >> 6 << 6) + 64; // <=
 	ax = (dir == 90 || dir == 270) ? px : px + (py - ay) / s_pixel->walls->angle_tg;
 	//ft_pixel_to_image1(s_pixel, ax, ay, 0xFFFFFF);
 	ya = (0 <= dir && dir <= 180) ? -64. : 64.; // <=
 	xa = (dir == 90 || dir == 270) ? 0. : 64. / s_pixel->walls->angle_tg;
 
-	if (xa != 0. && (180 < dir && dir < 360))
+	if (xa != 0. && (180 <= dir && dir <= 360)) // (180 <= dir && dir <= 360)
+	{
+		//printf("form x - %i\n", kappa++);
 		xa = -xa;
-
+	}
+	
 	while (is_inside)
 	{
 		//ft_pixel_to_image1(s_pixel, ax, ay, 0x00FFFF);
 		if (ax < 0 || ax > s_pixel->map->map_width || ay < 0 || ay > s_pixel->map->map_height)
 			break ;
 		is_inside = (ft_is_wall(s_pixel, ax, ay) == 0) ? 0 : 1;
-		//if (is_inside == 0)
-		//	ft_pixel_to_image1(s_pixel, ax, ay, 0xFFFFFF);
+		if (is_inside == 0 && (ft_is_wall(s_pixel, ax, ay - 1) == 0 && ft_is_wall(s_pixel, ax, ay + 1) == 0)) /////////////////////////////////////////////////////////////////////////// s_pixel->map->map_game_int[y >> 6][x >> 6] != 0
+				is_inside = 1;
+		if (is_inside == 0)
+			ft_pixel_to_image1(s_pixel, ax, ay, 0x00FFFF);
 		ax = (is_inside == 1) ? ax + xa : ax;
 		ay = (is_inside == 1) ? ay + ya : ay;
 	}
@@ -445,18 +461,20 @@ void ft_check_ver(t_elem *s_pixel, double dir)
 	is_inside = 1;
 	if (!(dir == 270 || dir == 90))
 	{
-		px = s_pixel->player->x_camera; // double
-		py = s_pixel->player->y_camera; // double
+		px = (int)s_pixel->player->x_camera; // double
+		py = (int)s_pixel->player->y_camera; // double
+		ft_pixel_to_image1(s_pixel, px, py, 0xFFFFFF);
 		is_inside = 1;
-
 		bx = (90 <= dir && dir <= 270) ? ((int)px >> 6 << 6) - 1. : ((int)px >> 6 << 6) + 64.;
 		by = (dir == 90 || dir == 270) ? py : py + (px - bx) * s_pixel->walls->angle_tg;
-		//ft_pixel_to_image1(s_pixel, bx, by, 0xFFFFFF);
+	
 		xa = (90 <= dir && dir <= 270) ? -64. : 64.;
 		ya = (dir == 90 || dir == 270) ? 0. : 64. * s_pixel->walls->angle_tg;
 	
-		if (ya != 0. && !(90 < dir && dir < 270)) // !
+		if (ya != 0. && !(90 <= dir && dir <= 270)) // !(90 <= dir && dir <= 270)
+		{
 			ya = -ya;
+		}
 	
 		while (is_inside)
 		{
@@ -464,8 +482,10 @@ void ft_check_ver(t_elem *s_pixel, double dir)
 			if (bx < 0 || bx > s_pixel->map->map_width || by < 0 || by > s_pixel->map->map_height)
 				break ;
 			is_inside = (ft_is_wall(s_pixel, bx, by) == 0) ? 0 : 1;
-			//if (is_inside == 0)
-			//	ft_pixel_to_image1(s_pixel, bx, by, 0xFFFFFF);
+			if (is_inside == 0 && (ft_is_wall(s_pixel, bx - 1, by) == 0 && ft_is_wall(s_pixel, bx + 1, by) == 0)) ///////////////////////////////////////////////////////////////////////////
+				is_inside = 1;
+			if (is_inside == 0)
+				ft_pixel_to_image1(s_pixel, bx, by, 0xFFFFFF);
 			bx = (is_inside == 1) ? bx + xa : bx;
 			by = (is_inside == 1) ? by + ya : by;
 		}
@@ -482,10 +502,10 @@ double ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y) // double
 
 	dir = s_pixel->player->dir;
 	if (dir == 0 || dir == 360 || dir == 180)
-		len = fabs(fabs(s_pixel->player->x_camera - wall_x) / s_pixel->walls->angle_cos);
+		len = fabs((s_pixel->player->x_camera - wall_x) / s_pixel->walls->angle_cos);
 	else
-		len = fabs(fabs(s_pixel->player->y_camera - wall_y) / s_pixel->walls->angle_sin); /// int
-	//len = (len < 0) ? -len : len; // int
+		len = fabs((s_pixel->player->y_camera - wall_y) / s_pixel->walls->angle_sin); /// int
+	//len = sqrt(pow(s_pixel->player->x_camera - wall_x, 2) + pow(s_pixel->player->y_camera - wall_y, 2));
 	return (len);
 }
 
@@ -501,6 +521,17 @@ void ft_find_wall(t_elem *s_pixel, double dir)
 	ft_check_gor(s_pixel, dir);
 	nbr1_x = s_pixel->walls->dot_wall_x; ////////////// int
 	nbr1_y = s_pixel->walls->dot_wall_y; ////////////// int
+	/*if (nbr1_x < 0)
+	{
+		ft_check_ver(s_pixel, dir);
+		nbr2_x = s_pixel->walls->dot_wall_x; ///////////// int
+		nbr2_y = s_pixel->walls->dot_wall_y; ////////////// int
+	}
+	else
+	{
+		nbr2_x = -404;
+		nbr2_y = -404;
+	}*/
 	ft_check_ver(s_pixel, dir);
 	nbr2_x = s_pixel->walls->dot_wall_x; ///////////// int
 	nbr2_y = s_pixel->walls->dot_wall_y; ////////////// int
@@ -508,7 +539,7 @@ void ft_find_wall(t_elem *s_pixel, double dir)
 	{
 		tmp_gor = ft_get_len_vec(s_pixel, nbr1_x, nbr1_y);
 		tmp_ver = ft_get_len_vec(s_pixel, nbr2_x, nbr2_y);
-		if (tmp_gor > tmp_ver) // >=
+		if (tmp_gor >= tmp_ver) // >=
 		{
 			s_pixel->walls->if_gor_line = 0;
 			s_pixel->walls->len_vec = tmp_ver;
@@ -523,11 +554,11 @@ void ft_find_wall(t_elem *s_pixel, double dir)
 	}
 	else if ((nbr1_x > 0 && nbr1_y > 0) && (nbr2_x < 0 && nbr2_y < 0))
 	{
-		s_pixel->walls->len_vec = ft_get_len_vec(s_pixel, nbr1_x, nbr1_y);
+		s_pixel->walls->len_vec = ft_get_len_vec(s_pixel, nbr1_x, nbr1_y); // &&
 		s_pixel->walls->if_gor_line = 1;
 		ft_which_texture(s_pixel, nbr1_x, nbr1_y);
 	}
-	else if ((nbr1_x < 0 && nbr1_y < 0) && (nbr2_x > 0 && nbr2_y > 0))
+	else if ((nbr1_x < 0 && nbr1_y < 0) && (nbr2_x > 0 && nbr2_y > 0)) // &&
 	{
 		s_pixel->walls->len_vec = ft_get_len_vec(s_pixel, nbr2_x, nbr2_y);
 		s_pixel->walls->if_gor_line = 0;
@@ -539,10 +570,58 @@ int ft_get_texture(t_elem *s_pixel, int offset, double step, double y)
 {
 	int color;
 	int index;
+	int x;
+	
 
-	y = (y / step);
-	index = ((int)y << 8) + (offset << 2);
-	color = *(unsigned *)(s_pixel->texture->begin_str_tex[s_pixel->texture->texture_now] + index);
+	x = s_pixel->texture->x;
+	if (s_pixel->texture->mandatory_mode == 1)
+	{
+		if (s_pixel->texture->texture_mode == 0)
+		{
+			if (s_pixel->walls->if_gor_line == 1 && (0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+				color = 0xFFFFFF;
+			else if (s_pixel->walls->if_gor_line == 1 && !(0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+				color = 0x00FFFF;
+			else if (s_pixel->walls->if_gor_line == 0 && (90 <= s_pixel->player->dir && s_pixel->player->dir <= 270))
+				color = 0xFFFF00;
+			else
+				color = 0xFF00FF;
+		}
+		else 
+		{
+			if (s_pixel->walls->if_gor_line == 1 && (0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+				s_pixel->texture->texture_now = 0;
+			else if (s_pixel->walls->if_gor_line == 1 && !(0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+				s_pixel->texture->texture_now = 1;
+			else if (s_pixel->walls->if_gor_line == 0 && (90 <= s_pixel->player->dir && s_pixel->player->dir <= 270))
+				s_pixel->texture->texture_now = 2;
+			else
+				s_pixel->texture->texture_now = 3;
+			y = (y / step);
+			index = ((int)y << 8) + (offset << 2);
+			color = *(unsigned *)(s_pixel->texture->begin_str_tex[s_pixel->texture->texture_now] + index);
+		}
+	}
+	else
+	{
+		if (s_pixel->texture->texture_mode == 0)
+		{
+			if (s_pixel->walls->if_gor_line == 1 && (0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+				color = 0xFFFFFF;
+			else if (s_pixel->walls->if_gor_line == 1 && !(0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+				color = 0x00FFFF;
+			else if (s_pixel->walls->if_gor_line == 0 && (90 <= s_pixel->player->dir && s_pixel->player->dir <= 270))
+				color = 0xFFFF00;
+			else
+				color = 0xFF00FF;
+		}
+		else
+		{
+			y = (y / step);
+			index = ((int)y << 8) + (offset << 2);
+			color = *(unsigned *)(s_pixel->texture->begin_str_tex[s_pixel->texture->texture_now] + index);
+		}
+	}
 	return (color);
 }
 
@@ -550,12 +629,13 @@ void ft_draw_walls(t_elem *s_pixel, int x)
 {
 	int i;
 	int y;
-	double height;
+	double height; // double
 	int offset;
 	double step;
 	int tmp_y;
 
 	tmp_y = 0;
+	s_pixel->texture->x = x;
 	if (s_pixel->walls->if_gor_line == 1)
 		offset = s_pixel->walls->offset_x % 64;
 	else
@@ -566,16 +646,16 @@ void ft_draw_walls(t_elem *s_pixel, int x)
 	y = 480 - (height  / 2 ); // >> 1
 	step = (height / 64);
 	while (tmp_y <= y)
-		if (!(x > 1920 || y > 960 || x < 0 || y < 0))
+		if (!(x > 1920 || y > 960 || x < 0 || y < 0)) // could be deleted
 			ft_pixel_to_image(s_pixel, x, tmp_y++, 0x202020);
-	while (++i < height)
+	while (++i < height - 10)
 	{
 		if (!(x > 1920 || y > 960 || x < 0 || y < 0))
 			ft_pixel_to_image(s_pixel, x, y, ft_get_texture(s_pixel, offset, step, (double)i));
 		y++;
 	}
 	while (y < 960)
-		if (!(x > 1920 || y > 960 || x < 0 || y < 0))
+		if (!(x > 1920 || y > 960 || x < 0 || y < 0)) // could be deleted
 			ft_pixel_to_image(s_pixel, x, y++, 0x696969);
 }
 
@@ -588,7 +668,7 @@ void ft_cast_ray(t_elem *s_pixel)
 	int x;
 
 	is_para = 0;
-	x = 1920;
+	x = 1919;
 	i = 0;
 	k = 60. / 1920.;
 	dir = (double)(s_pixel->player->pov - (60. / 2.));
@@ -616,7 +696,7 @@ void ft_draw_game(t_elem *s_pixel)
 	ft_cast_ray(s_pixel);
 	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->img_ptr, 0, 0);
 	//mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->img_ptr1, 0, 0);
-	//ft_draw_interface(s_pixel);
+	ft_draw_interface(s_pixel);
 }
 
 void ft_draw_interface(t_elem *s_pixel)
@@ -845,8 +925,8 @@ void ft_get_map(t_elem *s_pixel, int ac, char **av)
 	short int error;
 	int fd;
 
-	ac = 2;
-	av[1] = "map";
+	//ac = 2;
+	//av[1] = "map";
 	error = 0;
 	if (ac == 2)
 	{
@@ -879,7 +959,9 @@ void ft_load_texture(t_elem *s_pixel)
 {
 	int bits_per_pixel;
 	int endian;
+	short int error;
 
+	error = 0;
 	s_pixel->texture->tex_width = 64;
 	s_pixel->texture->tex_height = 64;
 	s_pixel->texture->arr_ptr_tex[0] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blue_wall.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
@@ -889,8 +971,10 @@ void ft_load_texture(t_elem *s_pixel)
 	s_pixel->texture->arr_ptr_tex[4] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/flag.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	s_pixel->texture->arr_ptr_tex[5] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/hitler.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	s_pixel->texture->arr_ptr_tex[6] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/eagle.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
+	
 	s_pixel->texture->arr_ptr_tex[7] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/door.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	s_pixel->texture->arr_ptr_tex[8] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/door_next_level.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
+	
 	s_pixel->texture->arr_ptr_tex[9] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/red_door_skeleton.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	s_pixel->texture->arr_ptr_tex[10] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blood_min.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height); // a
 	s_pixel->texture->arr_ptr_tex[11] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blood_max.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height); // b
@@ -900,19 +984,6 @@ void ft_load_texture(t_elem *s_pixel)
 	s_pixel->texture->arr_ptr_tex[15] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/gachamuchi.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//f
 	s_pixel->texture->arr_ptr_tex[16] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/interface.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//g
 	s_pixel->texture->arr_ptr_tex[17] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/pistol_icon.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//h
-	s_pixel->texture->arr_ptr_tex[18] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_column.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//i
-	s_pixel->texture->arr_ptr_tex[19] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_rakovina.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//l
-	s_pixel->texture->arr_ptr_tex[20] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_table_with_blood.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//k
-	s_pixel->texture->arr_ptr_tex[21] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_table.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//l
-	s_pixel->texture->arr_ptr_tex[22] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_flag.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//m
-	s_pixel->texture->arr_ptr_tex[23] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_kubok.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//n
-	s_pixel->texture->arr_ptr_tex[24] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_korona.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//o
-	s_pixel->texture->arr_ptr_tex[25] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_death.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//p
-	s_pixel->texture->arr_ptr_tex[26] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_gold_krest.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//q
-	s_pixel->texture->arr_ptr_tex[27] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_luzha.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//r
-	s_pixel->texture->arr_ptr_tex[28] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_more.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//s
-	s_pixel->texture->arr_ptr_tex[29] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_toalet.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//t
-	s_pixel->texture->arr_ptr_tex[30] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/sprite_tree.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//u
 
 	s_pixel->texture->begin_str_tex[0] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[0], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[1] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[1], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
@@ -921,8 +992,10 @@ void ft_load_texture(t_elem *s_pixel)
 	s_pixel->texture->begin_str_tex[4] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[4], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[5] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[5], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[6] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[6], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
+	
 	s_pixel->texture->begin_str_tex[7] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[7], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[8] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[8], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
+	
 	s_pixel->texture->begin_str_tex[9] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[9], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[10] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[10], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[11] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[11], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
@@ -932,19 +1005,6 @@ void ft_load_texture(t_elem *s_pixel)
 	s_pixel->texture->begin_str_tex[15] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[15], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[16] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[16], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[17] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[17], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[18] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[18], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[19] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[19], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[20] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[20], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[21] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[21], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[22] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[22], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[23] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[23], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[24] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[24], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[25] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[25], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[26] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[26], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[27] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[27], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[28] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[28], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[29] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[29], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[30] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[30], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 }
 
 void ft_prepare_programm(t_elem *s_pixel)
@@ -960,7 +1020,7 @@ void ft_prepare_programm(t_elem *s_pixel)
 	s_pixel->img_ptr1 = mlx_new_image(s_pixel->mlx_ptr, 1920, 960); ////////////////////////////////////////////////
 	s_pixel->begin_str1 = mlx_get_data_addr(s_pixel->img_ptr1, &bits_per_pixel, &s_pixel->size_line1, &endian); ////////////////////
 
-	s_pixel->player->pov = 180; //90
+	s_pixel->player->pov = 90;
 	s_pixel->walls->len_to_project_plane = 1662;
 	s_pixel->player->level = 1;
 	s_pixel->player->health = 100;
@@ -974,8 +1034,9 @@ void ft_prepare_programm(t_elem *s_pixel)
 	s_pixel->key->see_left = 0;
 	s_pixel->key->see_right = 0;
 	s_pixel->key->sit = 0;
-	//s_pixel->player->x_camera = 940; ///////////////////////////////////////////////////////////////////////////////////
-	//s_pixel->player->y_camera = 70; /////////////////////////////////////////////////////////////////////////////////
+	s_pixel->texture->mandatory_mode = 1;
+	s_pixel->texture->texture_mode = 1;
+	system("afplay ./Graphics/music.mp3 &");
 	ft_load_texture(s_pixel);
 	ft_main_draw(s_pixel);
 }

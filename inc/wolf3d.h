@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:17 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/01 18:04:38 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/02 16:38:47 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,9 @@ typedef struct		s_player
 
 typedef struct		s_texture
 {
+	int 			x;
+	short int		mandatory_mode;
+	short int		texture_mode;
 	short int		texture_now;
 	int				size_line;
  	int				tex_width;
@@ -115,7 +118,7 @@ int ft_is_wall(t_elem *s_pixel, int x, int y);
 void ft_which_texture(t_elem *s_pixel, int x, int y);
 void ft_check_gor(t_elem *s_pixel, double dir);
 void ft_check_ver(t_elem *s_pixel, double dir);
-double ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y); // double
+double ft_get_len_vec(t_elem *s_pixel, double wall_x, double wall_y);
 void ft_find_wall(t_elem *s_pixel, double dir);
 int ft_get_texture(t_elem *s_pixel, int offset, double step, double y);
 void ft_draw_walls(t_elem *s_pixel, int x);
@@ -131,37 +134,3 @@ void ft_load_texture(t_elem *s_pixel);
 void ft_prepare_programm(t_elem *s_pixel);
 
 #endif
-
-/*
-
-1111111444111111111111111111
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000009
-3000000000000000000000000008
-3000000010100000000000000007
-3000000010100000000000000006
-3000000010100000000000000005
-3000000010100000000000000004
-3000000000000000000000000003
-3000000000000000000000000002
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1000000000000000000000000001
-1111111444111111111111111111
-
-*/
