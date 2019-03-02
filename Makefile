@@ -6,7 +6,7 @@
 #    By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/01/16 17:26:55 by arudyi            #+#    #+#              #
-#    Updated: 2019/03/01 19:30:25 by arudyi           ###   ########.fr        #
+#    Updated: 2019/03/02 17:13:04 by arudyi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ LIBFT = $(LIBFT_DIR)libft.a
 LIBFT_DIR := $(LIB_DIR)libft/
 LIBFT_INC := $(LIBFT_DIR)includes/
 LIBFT_FLAGS := -lft -L $(LIBFT_DIR)
-CC_FLAGS = -O2 -Wall -Werror -Wextra
+CC_FLAGS = -g -Wall -Werror -Wextra
 LINK_FLAGS := $(LIBFT_FLAGS)
 HEADER_FLAGS := -I $(INCLUDE_DIR) -I $(LIBFT_INC) 
 CC := gcc

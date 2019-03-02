@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:13 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/02 16:46:41 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/02 18:54:23 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,27 @@ void exit_program(t_elem *s_pixel)
 {
 	int i;
 	int height;
+	system("killall afplay");
+	height = s_pixel->map->map_height >> 6;
+	i = -1;
+	while (++i < height)
+		free(s_pixel->map->map_game_int[i]);
+	free(s_pixel->map->map_game_int);
+	free(s_pixel->key);
+	free(s_pixel->map);
+	free(s_pixel->texture);
+	free(s_pixel->player);
+	free(s_pixel->walls);
+	free(s_pixel);
+	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr);
+	system("leaks wolf3d");
+	exit(1);
+}
+
+int exit_x(t_elem *s_pixel)
+{
+	int i;
+	int height;
 
 	system("killall afplay");
 	height = s_pixel->map->map_height >> 6;
@@ -49,28 +70,7 @@ void exit_program(t_elem *s_pixel)
 	free(s_pixel->walls);
 	free(s_pixel);
 	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr);
-	//system("leaks wolf3d");
-	exit(1);
-}
-
-int exit_x(t_elem *s_pixel)
-{
-	int i;
-	int height;
-
-	height = s_pixel->map->map_height >> 6;
-	i = -1;
-	while (++i < height)
-		free(s_pixel->map->map_game_int[i]);
-	free(s_pixel->map->map_game_int);
-	free(s_pixel->key);
-	free(s_pixel->map);
-	free(s_pixel->texture);
-	free(s_pixel->player);
-	free(s_pixel->walls);
-	free(s_pixel);
-	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr);
-	//system("leaks wolf3d");
+	system("leaks wolf3d");
 	exit(1);
 	return (0);
 }
@@ -258,10 +258,6 @@ void ft_clean_display(t_elem *s_pixel)
 	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr);
 	s_pixel->img_ptr = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
 	s_pixel->begin_str = mlx_get_data_addr(s_pixel->img_ptr, &bits_per_pixel, &s_pixel->size_line, &endian);
-
-	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr1);
-	s_pixel->img_ptr1 = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
-	s_pixel->begin_str1 = mlx_get_data_addr(s_pixel->img_ptr1, &bits_per_pixel, &s_pixel->size_line, &endian);
 }
 
 void ft_refresh(t_elem *s_pixel)
@@ -280,8 +276,6 @@ void ft_refresh(t_elem *s_pixel)
 	s_pixel->player->pov = 90;
 	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr);
 	s_pixel->img_ptr = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
-	mlx_destroy_image(s_pixel->mlx_ptr, s_pixel->img_ptr1);
-	s_pixel->img_ptr1 = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
 }
 
 void ft_change_pov(t_elem *s_pixel)
@@ -369,19 +363,6 @@ void ft_pixel_to_image(t_elem *s_pixel, int x, int y, int color)
 	}
 }
 
-void ft_pixel_to_image1(t_elem *s_pixel, int x, int y, int color)
-{
-	int index;
-
-	if (!(x > 1919 || x < 0 || y > 959 || y < 0))
-	{
-		index = s_pixel->size_line1 * y + (x << 2);
-		//if (index < 0)
-		//	index = index;
-		*(unsigned *)(s_pixel->begin_str1 + index) = color;
-	}
-}
-
 int ft_is_wall(t_elem *s_pixel, int x, int y)
 {
 	if (x < 0 || y < 0 || x > s_pixel->map->map_width - 1 || y > s_pixel->map->map_height - 1)
@@ -417,7 +398,7 @@ void ft_check_gor(t_elem *s_pixel, double dir)
 	px = (int)s_pixel->player->x_camera;
 	py = (int)s_pixel->player->y_camera;
 	is_inside = 1;
-	ft_pixel_to_image1(s_pixel, px, py, 0xFFFFFF);
+	//ft_pixel_to_image1(s_pixel, px, py, 0xFFFFFF);
 	ay = (0 <= dir && dir <= 180) ? ((int)py >> 6 << 6) - 1 : ((int)py >> 6 << 6) + 64; // <=
 	ax = (dir == 90 || dir == 270) ? px : px + (py - ay) / s_pixel->walls->angle_tg;
 	//ft_pixel_to_image1(s_pixel, ax, ay, 0xFFFFFF);
@@ -438,8 +419,8 @@ void ft_check_gor(t_elem *s_pixel, double dir)
 		is_inside = (ft_is_wall(s_pixel, ax, ay) == 0) ? 0 : 1;
 		if (is_inside == 0 && (ft_is_wall(s_pixel, ax, ay - 1) == 0 && ft_is_wall(s_pixel, ax, ay + 1) == 0)) /////////////////////////////////////////////////////////////////////////// s_pixel->map->map_game_int[y >> 6][x >> 6] != 0
 				is_inside = 1;
-		if (is_inside == 0)
-			ft_pixel_to_image1(s_pixel, ax, ay, 0x00FFFF);
+		//if (is_inside == 0)
+			//ft_pixel_to_image1(s_pixel, ax, ay, 0x00FFFF);
 		ax = (is_inside == 1) ? ax + xa : ax;
 		ay = (is_inside == 1) ? ay + ya : ay;
 	}
@@ -463,7 +444,7 @@ void ft_check_ver(t_elem *s_pixel, double dir)
 	{
 		px = (int)s_pixel->player->x_camera; // double
 		py = (int)s_pixel->player->y_camera; // double
-		ft_pixel_to_image1(s_pixel, px, py, 0xFFFFFF);
+		//ft_pixel_to_image1(s_pixel, px, py, 0xFFFFFF);
 		is_inside = 1;
 		bx = (90 <= dir && dir <= 270) ? ((int)px >> 6 << 6) - 1. : ((int)px >> 6 << 6) + 64.;
 		by = (dir == 90 || dir == 270) ? py : py + (px - bx) * s_pixel->walls->angle_tg;
@@ -484,8 +465,8 @@ void ft_check_ver(t_elem *s_pixel, double dir)
 			is_inside = (ft_is_wall(s_pixel, bx, by) == 0) ? 0 : 1;
 			if (is_inside == 0 && (ft_is_wall(s_pixel, bx - 1, by) == 0 && ft_is_wall(s_pixel, bx + 1, by) == 0)) ///////////////////////////////////////////////////////////////////////////
 				is_inside = 1;
-			if (is_inside == 0)
-				ft_pixel_to_image1(s_pixel, bx, by, 0xFFFFFF);
+			//if (is_inside == 0)
+			//	ft_pixel_to_image1(s_pixel, bx, by, 0xFFFFFF);
 			bx = (is_inside == 1) ? bx + xa : bx;
 			by = (is_inside == 1) ? by + ya : by;
 		}
@@ -705,8 +686,8 @@ void ft_draw_interface(t_elem *s_pixel)
 	char *tmp;
 	char *tmp1;
 
-	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->texture->arr_ptr_tex[14], 887, 565);
-	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->texture->arr_ptr_tex[16], 0, 730);
+	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->texture->arr_ptr_tex[10], 887, 565);
+	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->texture->arr_ptr_tex[11], 0, 730);
 	tmp = ft_itoa(s_pixel->player->level);
 	str = ft_strjoin(tmp, "                            ");
 	free(tmp);
@@ -736,7 +717,7 @@ void ft_draw_interface(t_elem *s_pixel)
 	free(tmp);	
 	mlx_string_put(s_pixel->mlx_ptr, s_pixel->win_ptr, 100, 870, 0xFFFFFF, str);
 	free(str);
-	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->texture->arr_ptr_tex[17], 1600, 820);
+	mlx_put_image_to_window(s_pixel->mlx_ptr, s_pixel->win_ptr, s_pixel->texture->arr_ptr_tex[12], 1600, 820);
 	//system("leaks wolf3d");
 	//exit(1);
 }
@@ -816,11 +797,6 @@ int ft_validate(char **map, int i, t_elem *s_pixel, int row)
 				s_pixel->map->begin_x_camera = (j << 6) + 22;
 				s_pixel->map->begin_y_camera = (i << 6) + 22;
 			}
-			//if (map[i][j] == '\n')
-			//	return (0); 										///////////////////////////////
-			//printf("row = %d\n", row);
-			//printf("%c\n", map[2][2]);
-			//printf("%c\n", map[0][0]);
 			if ((i == 0 || i == row - 1) && !(48 < map[i][j] && map[i][j] <= 97))
 				return (0);
 			if ((j == 0 || j == size_is_right- 1) && !(48 < map[i][j] && map[i][j] <= 97)) 
@@ -848,9 +824,8 @@ int ft_validate(char **map, int i, t_elem *s_pixel, int row)
 	}
 	if (is_player == 0)
 		return (0);
-	s_pixel->map->map_width = size_is_right << 6; ///////// !!!!!!!!!!!!!!!!!!! ////////
-	s_pixel->map->map_height = row << 6; ////////////// !!!!!!!!!!!!!!!!!!!!!!!!!!!! ///////////////////////////// 
-	//printf("width = %d, height = %d\n",s_pixel->map->map_width , s_pixel->map->map_height);
+	s_pixel->map->map_width = size_is_right << 6;
+	s_pixel->map->map_height = row << 6;
 	return (1);
 }
 
@@ -895,7 +870,7 @@ int ft_read_map(int fd, t_elem *s_pixel)
 	free(map);
 	s_pixel->map->map_game[row] = NULL;
 	i = -1;
-	s_pixel->map->map_game_int = (int **)malloc(sizeof(int *) * (s_pixel->map->map_height >> 6)); /// !!!!!!!!!!!!! //////// s_pixel->map->map_width
+	s_pixel->map->map_game_int = (int **)malloc(sizeof(int *) * (s_pixel->map->map_height >> 6));
 	while (s_pixel->map->map_game[++i] != NULL)
 	{
 		j = -1;
@@ -908,15 +883,6 @@ int ft_read_map(int fd, t_elem *s_pixel)
 		free(s_pixel->map->map_game[i]);
 	}
 	free(s_pixel->map->map_game);
-	i = -1;
-	/*while (++i < s_pixel->map->map_height >> 6)
-	{
-		k = -1;
-		while (++k < s_pixel->map->map_width >> 6)
-			printf("%d", s_pixel->map->map_game_int[i][k]);
-		printf("\n");
-	}*/
-	//printf("%d\n", s_pixel->map->map_game_int[1][2]);
 	return (1);
 }
 
@@ -925,8 +891,6 @@ void ft_get_map(t_elem *s_pixel, int ac, char **av)
 	short int error;
 	int fd;
 
-	//ac = 2;
-	//av[1] = "map";
 	error = 0;
 	if (ac == 2)
 	{
@@ -948,7 +912,7 @@ void ft_get_map(t_elem *s_pixel, int ac, char **av)
 		free(s_pixel->player);
 		free(s_pixel->walls);
 		free(s_pixel);
-		printf("error in ac, name or file is invalid\n");
+		write(1, "error in ac, name or file is invalid\n", 37);
 		system("leaks wolf3d");
 		exit(1);
 	}
@@ -959,12 +923,15 @@ void ft_load_texture(t_elem *s_pixel)
 {
 	int bits_per_pixel;
 	int endian;
-	short int error;
 
-	error = 0;
+
+
 	s_pixel->texture->tex_width = 64;
 	s_pixel->texture->tex_height = 64;
-	s_pixel->texture->arr_ptr_tex[0] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blue_wall.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
+	if (!(s_pixel->texture->arr_ptr_tex[0] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blue_wall.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height)))
+	{
+		exit(1);		
+	}
 	s_pixel->texture->arr_ptr_tex[1] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/brown_wall.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	s_pixel->texture->arr_ptr_tex[2] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/red_wall.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	s_pixel->texture->arr_ptr_tex[3] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/eagle_with_swa.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
@@ -972,18 +939,17 @@ void ft_load_texture(t_elem *s_pixel)
 	s_pixel->texture->arr_ptr_tex[5] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/hitler.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	s_pixel->texture->arr_ptr_tex[6] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/eagle.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	
-	s_pixel->texture->arr_ptr_tex[7] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/door.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
-	s_pixel->texture->arr_ptr_tex[8] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/door_next_level.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
+	s_pixel->texture->arr_ptr_tex[7] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blood_min.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
+	s_pixel->texture->arr_ptr_tex[8] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blood_max.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
 	
 	s_pixel->texture->arr_ptr_tex[9] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/red_door_skeleton.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);
-	s_pixel->texture->arr_ptr_tex[10] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blood_min.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height); // a
-	s_pixel->texture->arr_ptr_tex[11] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/blood_max.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height); // b
-	s_pixel->texture->arr_ptr_tex[12] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/red_door.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height); //c
-	s_pixel->texture->arr_ptr_tex[13] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/vova.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//d
-	s_pixel->texture->arr_ptr_tex[14] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/pistol.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//e
-	s_pixel->texture->arr_ptr_tex[15] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/gachamuchi.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//f
-	s_pixel->texture->arr_ptr_tex[16] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/interface.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//g
-	s_pixel->texture->arr_ptr_tex[17] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/pistol_icon.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//h
+
+
+	s_pixel->texture->arr_ptr_tex[10] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/pistol.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//e
+	
+	s_pixel->texture->arr_ptr_tex[11] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/interface.xpm", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//g
+	s_pixel->texture->arr_ptr_tex[12] = mlx_xpm_file_to_image(s_pixel->mlx_ptr, "Graphics/pistol_icon.XPM", &s_pixel->texture->tex_width, &s_pixel->texture->tex_height);//h
+
 
 	s_pixel->texture->begin_str_tex[0] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[0], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[1] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[1], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
@@ -997,14 +963,12 @@ void ft_load_texture(t_elem *s_pixel)
 	s_pixel->texture->begin_str_tex[8] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[8], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	
 	s_pixel->texture->begin_str_tex[9] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[9], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
+
+
 	s_pixel->texture->begin_str_tex[10] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[10], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[11] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[11], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
 	s_pixel->texture->begin_str_tex[12] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[12], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[13] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[13], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[14] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[14], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[15] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[15], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[16] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[16], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
-	s_pixel->texture->begin_str_tex[17] = mlx_get_data_addr(s_pixel->texture->arr_ptr_tex[17], &bits_per_pixel, &s_pixel->texture->size_line, &endian);
+
 }
 
 void ft_prepare_programm(t_elem *s_pixel)
@@ -1017,8 +981,6 @@ void ft_prepare_programm(t_elem *s_pixel)
 	s_pixel->img_ptr = mlx_new_image(s_pixel->mlx_ptr, 1920, 960);
 	s_pixel->begin_str = mlx_get_data_addr(s_pixel->img_ptr, &bits_per_pixel, &s_pixel->size_line, &endian);
 
-	s_pixel->img_ptr1 = mlx_new_image(s_pixel->mlx_ptr, 1920, 960); ////////////////////////////////////////////////
-	s_pixel->begin_str1 = mlx_get_data_addr(s_pixel->img_ptr1, &bits_per_pixel, &s_pixel->size_line1, &endian); ////////////////////
 
 	s_pixel->player->pov = 90;
 	s_pixel->walls->len_to_project_plane = 1662;
@@ -1036,6 +998,9 @@ void ft_prepare_programm(t_elem *s_pixel)
 	s_pixel->key->sit = 0;
 	s_pixel->texture->mandatory_mode = 1;
 	s_pixel->texture->texture_mode = 1;
+	//system("leaks wolf3d");
+	//exit(1);
+	//exit_x(s_pixel);
 	system("afplay ./Graphics/music.mp3 &");
 	ft_load_texture(s_pixel);
 	ft_main_draw(s_pixel);
@@ -1048,15 +1013,40 @@ int main(int ac, char **av)
 	if (!(s_pixel = (t_elem *)malloc(sizeof(t_elem))))
 		return (0);
 	if (!(s_pixel->walls = (t_walls *)malloc(sizeof(t_walls))))
+	{
+		free(s_pixel);
 		return (0);
+	}
 	if (!(s_pixel->player = (t_player *)malloc(sizeof(t_player))))
+	{
+		free(s_pixel->player);
+		free(s_pixel);
 		return (0);
+	}
 	if (!(s_pixel->texture = (t_texture *)malloc(sizeof(t_texture))))
+	{
+		free(s_pixel->texture);
+		free(s_pixel->player);
+		free(s_pixel);
 		return (0);
+	}
 	if (!(s_pixel->map = (t_map *)malloc(sizeof(t_map))))
+	{
+		free(s_pixel->map);
+		free(s_pixel->texture);
+		free(s_pixel->player);
+		free(s_pixel);
 		return (0);
+	}
 	if (!(s_pixel->key = (t_key *)malloc(sizeof(t_key))))
+	{
+		free(s_pixel->key);
+		free(s_pixel->map);
+		free(s_pixel->texture);
+		free(s_pixel->player);
+		free(s_pixel);
 		return (0);
+	}
 	ft_get_map(s_pixel, ac, av);
 	ft_prepare_programm(s_pixel);
 	system("leaks wolf3d");
