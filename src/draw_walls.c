@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/03 18:19:47 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/04 10:19:02 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/04 11:36:07 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,22 +55,22 @@ int		ft_get_color_part(t_elem *s_pixel, int color)
 {
 	if (s_pixel->texture->mandatory_mode == 1)
 	{
-		if (s_pixel->walls->if_gor_line == 1 && (0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+		if (s_pixel->walls->if_gor_line == 1 && CHECK1)
 			color = 0xFFFFFF;
-		else if (s_pixel->walls->if_gor_line == 1 && !(0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+		else if (s_pixel->walls->if_gor_line == 1 && CHECK2)
 			color = 0x00FFFF;
-		else if (s_pixel->walls->if_gor_line == 0 && (90 <= s_pixel->player->dir && s_pixel->player->dir <= 270))
+		else if (s_pixel->walls->if_gor_line == 0 && CHECK3)
 			color = 0xFFFF00;
 		else
 			color = 0xFF00FF;
 	}
-	else 
+	else
 	{
-		if (s_pixel->walls->if_gor_line == 1 && (0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+		if (s_pixel->walls->if_gor_line == 1 && CHECK1)
 			color = 0xFFFFFF;
-		else if (s_pixel->walls->if_gor_line == 1 && !(0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+		else if (s_pixel->walls->if_gor_line == 1 && CHECK2)
 			color = 0x00FFFF;
-		else if (s_pixel->walls->if_gor_line == 0 && (90 <= s_pixel->player->dir && s_pixel->player->dir <= 270))
+		else if (s_pixel->walls->if_gor_line == 0 && CHECK3)
 			color = 0xFFFF00;
 		else
 			color = 0xFF00FF;
@@ -85,18 +85,22 @@ int		ft_get_texture_part(t_elem *s_pixel, int offset, double step, double y)
 
 	if (s_pixel->texture->mandatory_mode == 1)
 	{
-		if (s_pixel->walls->if_gor_line == 1 && (0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+		if (s_pixel->walls->if_gor_line == 1 && (0 <= s_pixel->player->dir &&
+		s_pixel->player->dir <= 180))
 			s_pixel->texture->texture_now = 0;
-		else if (s_pixel->walls->if_gor_line == 1 && !(0 <= s_pixel->player->dir && s_pixel->player->dir <= 180))
+		else if (s_pixel->walls->if_gor_line == 1 && !(0 <= s_pixel->player->
+		dir && s_pixel->player->dir <= 180))
 			s_pixel->texture->texture_now = 1;
-		else if (s_pixel->walls->if_gor_line == 0 && (90 <= s_pixel->player->dir && s_pixel->player->dir <= 270))
+		else if (s_pixel->walls->if_gor_line == 0 && (90 <= s_pixel->player->
+		dir && s_pixel->player->dir <= 270))
 			s_pixel->texture->texture_now = 2;
 		else
 			s_pixel->texture->texture_now = 3;
 	}
 	y = (y / step);
 	index = ((int)y << 8) + (offset << 2);
-	color = *(unsigned *)(s_pixel->texture->begin_str_tex[s_pixel->texture->texture_now] + index);
+	color = *(unsigned *)(s_pixel->texture->begin_str_tex[s_pixel->texture->
+	texture_now] + index);
 	return (color);
 }
 
@@ -108,7 +112,7 @@ int		ft_get_texture(t_elem *s_pixel, int offset, double step, double y)
 	{
 		if (s_pixel->texture->texture_mode == 0)
 			color = ft_get_color_part(s_pixel, 0);
-		else 
+		else
 			color = ft_get_texture_part(s_pixel, offset, step, y);
 	}
 	else

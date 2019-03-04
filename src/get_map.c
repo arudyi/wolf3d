@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/03 18:17:38 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/04 09:04:45 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/04 11:45:22 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ int		ft_validate(char **map, int i, t_elem *s_pixel, int row)
 		{
 			if (map[i][s_pixel->j] == '0')
 				ft_find_player_position(s_pixel, i, s_pixel->j);
-			if (validate1)
+			if ((V1 && V2) || (V3 && V4))
 				return (0);
 			s_pixel->size_row++;
 			s_pixel->size_column++;

@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/03 18:17:33 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/04 09:42:15 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/04 10:53:33 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,15 +58,15 @@ void	ft_load_texture2(t_elem *s_pixel)
 	if (!(s_pixel->texture->arr_ptr_tex[10] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/pistol.XPM", &s_pixel->texture->tex_width, &s_pixel->
 	texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[11] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/interface.xpm", &s_pixel->texture->tex_width,
 	&s_pixel->texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[12] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/pistol_icon.XPM", &s_pixel->texture->tex_width,
 	&s_pixel->texture->tex_height)))
-		exit(1);
+		exit_texture();
 }
 
 void	ft_load_texture1(t_elem *s_pixel)
@@ -74,19 +74,19 @@ void	ft_load_texture1(t_elem *s_pixel)
 	if (!(s_pixel->texture->arr_ptr_tex[6] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/eagle.xpm", &s_pixel->texture->tex_width, &s_pixel->
 	texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[7] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/blood_min.xpm", &s_pixel->texture->tex_width, &s_pixel->
 	texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[8] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/blood_max.xpm", &s_pixel->texture->tex_width, &s_pixel->
 	texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[9] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/red_door_skeleton.xpm", &s_pixel->texture->tex_width,
 	&s_pixel->texture->tex_height)))
-		exit(1);
+		exit_texture();
 	ft_load_texture2(s_pixel);
 }
 
@@ -95,26 +95,26 @@ void	ft_load_texture(t_elem *s_pixel)
 	if (!(s_pixel->texture->arr_ptr_tex[0] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/blue_wall.xpm", &s_pixel->texture->tex_width,
 	&s_pixel->texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[1] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/brown_wall.xpm", &s_pixel->texture->tex_width,
 	&s_pixel->texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[2] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/red_wall.xpm", &s_pixel->texture->tex_width,
 	&s_pixel->texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[3] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/eagle_with_swa.xpm", &s_pixel->texture->tex_width,
 	&s_pixel->texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[4] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/flag.xpm", &s_pixel->texture->tex_width,
 	&s_pixel->texture->tex_height)))
-		exit(1);
+		exit_texture();
 	if (!(s_pixel->texture->arr_ptr_tex[5] = mlx_xpm_file_to_image(s_pixel->
 	mlx_ptr, "Graphics/hitler.xpm", &s_pixel->texture->tex_width,
 	&s_pixel->texture->tex_height)))
-		exit(1);
+		exit_texture();
 	ft_load_texture1(s_pixel);
 }

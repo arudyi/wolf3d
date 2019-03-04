@@ -6,7 +6,7 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:13 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/04 09:48:53 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/04 11:19:25 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,5 @@ int		main(int ac, char **av)
 	s_pixel->size_column = 0;
 	ft_get_map(s_pixel, ac, av);
 	ft_prepare_programm(s_pixel);
-	system("leaks wolf3d");
 	return (0);
 }
