@@ -6,15 +6,14 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/03 18:19:47 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/03 18:21:09 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/04 10:19:02 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/wolf3d.h"
 
-void ft_draw_walls(t_elem *s_pixel, int x)
+void	ft_draw_walls(t_elem *s_pixel, int x)
 {
-	int		i;
 	int		y;
 	double	height;
 	int		offset;
@@ -27,20 +26,21 @@ void ft_draw_walls(t_elem *s_pixel, int x)
 		offset = s_pixel->walls->offset_x % 64;
 	else
 		offset = s_pixel->walls->offset_y % 64;
-	i = -1;
+	s_pixel->i = -1;
 	height = 64 / s_pixel->walls->len_vec * 1662;
-	y = 480 - (height  / 2 ); // >> 1
+	y = 480 - (height / 2);
 	step = (height / 64);
 	while (tmp_y <= y)
-			ft_pixel_to_image(s_pixel, x, tmp_y++, 0x202020); //if (!(x > 1919 || y > 959 || x < 0 || y < 0)) // could be deleted
-	while (++i < height - 10)
+		ft_pixel_to_image(s_pixel, x, tmp_y++, 0x202020);
+	while (++s_pixel->i < height - 10)
 		if (!(x > 1920 || y > 960 || x < 0 || y++ < 0))
-			ft_pixel_to_image(s_pixel, x, y, ft_get_texture(s_pixel, offset, step, (double)i));
+			ft_pixel_to_image(s_pixel, x, y, ft_get_texture(s_pixel, offset,
+			step, (double)s_pixel->i));
 	while (y < 960)
-			ft_pixel_to_image(s_pixel, x, y++, 0x696969); //if (!(x > 1919 || y > 959 || x < 0 || y < 0)) // could be deleted
+		ft_pixel_to_image(s_pixel, x, y++, 0x696969);
 }
 
-void ft_pixel_to_image(t_elem *s_pixel, int x, int y, int color)
+void	ft_pixel_to_image(t_elem *s_pixel, int x, int y, int color)
 {
 	int index;
 
@@ -51,7 +51,7 @@ void ft_pixel_to_image(t_elem *s_pixel, int x, int y, int color)
 	}
 }
 
-int ft_get_color_part(t_elem *s_pixel, int color)
+int		ft_get_color_part(t_elem *s_pixel, int color)
 {
 	if (s_pixel->texture->mandatory_mode == 1)
 	{
@@ -78,7 +78,7 @@ int ft_get_color_part(t_elem *s_pixel, int color)
 	return (color);
 }
 
-int ft_get_texture_part(t_elem *s_pixel, int offset, double step, double y)
+int		ft_get_texture_part(t_elem *s_pixel, int offset, double step, double y)
 {
 	int color;
 	int index;
@@ -100,7 +100,7 @@ int ft_get_texture_part(t_elem *s_pixel, int offset, double step, double y)
 	return (color);
 }
 
-int ft_get_texture(t_elem *s_pixel, int offset, double step, double y)
+int		ft_get_texture(t_elem *s_pixel, int offset, double step, double y)
 {
 	int color;
 

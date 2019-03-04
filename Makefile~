@@ -6,7 +6,7 @@
 #    By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/01/16 17:26:55 by arudyi            #+#    #+#              #
-#    Updated: 2019/03/03 16:35:35 by arudyi           ###   ########.fr        #
+#    Updated: 2019/03/04 08:49:58 by arudyi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,13 +16,13 @@ SRC_DIR = ./src/
 OBJ_DIR = ./obj/
 INCLUDE_DIR = ./include/
 LIB_DIR = ./lib/
-SRC = main.c
+SRC = main.c main_draw.c get_map1.c additional.c change_pos1.c change_pos.c exit.c events1.c events.c find_len.c draw_walls.c rays.c load_texture.c get_map.c
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 LIBFT = $(LIBFT_DIR)libft.a
 LIBFT_DIR := $(LIB_DIR)libft/
 LIBFT_INC := $(LIBFT_DIR)includes/
 LIBFT_FLAGS := -lft -L $(LIBFT_DIR)
-CC_FLAGS = -O2 -Wall -Werror -Wextra
+CC_FLAGS = -g -Wall -Werror -Wextra
 LINK_FLAGS := $(LIBFT_FLAGS)
 HEADER_FLAGS := -I $(INCLUDE_DIR) -I $(LIBFT_INC) 
 CC := gcc

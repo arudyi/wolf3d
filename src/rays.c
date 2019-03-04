@@ -6,20 +6,20 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/03 18:18:35 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/03 18:19:09 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/04 10:14:44 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/wolf3d.h"
 
-void ft_check_gor1(t_elem *s_pixel, double ax, double ay, short int is_inside)
+void	ft_check_gor1(t_elem *s_pixel, double ax, double ay, short int is_in)
 {
 	s_pixel->walls->offset_x = ax;
-	s_pixel->walls->dot_wall_x = (is_inside == 0) ? ax : -404;
-	s_pixel->walls->dot_wall_y = (is_inside == 0) ? ay : -404;
+	s_pixel->walls->dot_wall_x = (is_in == 0) ? ax : -404;
+	s_pixel->walls->dot_wall_y = (is_in == 0) ? ay : -404;
 }
 
-void ft_check_gor(t_elem *s_pixel, double dir, double ax, double ay)
+void	ft_check_gor(t_elem *s_pixel, double dir, double ax, double ay)
 {
 	short int	is_inside;
 	double		xa;
@@ -38,21 +38,21 @@ void ft_check_gor(t_elem *s_pixel, double dir, double ax, double ay)
 			break ;
 		is_inside = (ft_is_wall(s_pixel, ax, ay) == 0) ? 0 : 1;
 		if (is_inside == 0 && (ft_is_wall(s_pixel, ax, ay - 1) == 0 && ft_is_wall(s_pixel, ax, ay + 1) == 0))
-				is_inside = 1;
+			is_inside = 1;
 		ax = (is_inside == 1) ? ax + xa : ax;
 		ay = (is_inside == 1) ? ay + ya : ay;
 	}
 	ft_check_gor1(s_pixel, ax, ay, is_inside);
 }
 
-void ft_check_ver1(t_elem *s_pixel, double bx, double by, short int is_inside)
+void	ft_check_ver1(t_elem *s_pixel, double bx, double by, short int is_in)
 {
 	s_pixel->walls->offset_y = by;
-	s_pixel->walls->dot_wall_x = (is_inside == 0) ? bx : -404;
-	s_pixel->walls->dot_wall_y = (is_inside == 0) ? by : -404;
+	s_pixel->walls->dot_wall_x = (is_in == 0) ? bx : -404;
+	s_pixel->walls->dot_wall_y = (is_in == 0) ? by : -404;
 }
 
-void ft_check_ver(t_elem *s_pixel, double dir, double bx, double by)
+void	ft_check_ver(t_elem *s_pixel, double dir, double bx, double by)
 {
 	short int	is_inside;
 	double		xa;
