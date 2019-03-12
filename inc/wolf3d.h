@@ -6,13 +6,14 @@
 /*   By: arudyi <arudyi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 16:50:17 by arudyi            #+#    #+#             */
-/*   Updated: 2019/03/04 11:57:31 by arudyi           ###   ########.fr       */
+/*   Updated: 2019/03/12 11:57:15 by arudyi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef WOLF3D_H
 # define WOLF3D_H
 
+# include <unistd.h>
 # include <stdlib.h>
 # include <math.h>
 # include <mlx.h>
